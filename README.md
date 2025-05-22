@@ -15,7 +15,7 @@ Aplicación REST desarrollada con **Spring Boot** para gestionar cafés, cliente
 
 ---
 
-## 📦 Modelos principales
+## 📦 Modelos principales  aa
 
 ### Café
 ```json
