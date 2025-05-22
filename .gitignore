@@ -1,33 +1,54 @@
-HELP.md
-target/
+# Compiled class files
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# Maven
+/target/
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
+# Eclipse
 .project
-.settings
-.springBeans
-.sts4-cache
+.classpath
+.csettings/
+.settings/
+/bin/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# IntelliJ IDEA
 *.iml
-*.ipr
+.idea/
+out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
+# VS Code
 .vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Windows
+*.exe
+*.dll
+*.bat
+*.cmd
+
+# Spring Boot devtools
+.spring-boot-devtools.properties
+
+# Environment files
+.env

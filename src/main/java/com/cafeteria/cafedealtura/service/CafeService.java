@@ -1,47 +1,45 @@
 package com.cafeteria.cafedealtura.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.cafeteria.cafedealtura.model.Cafe;
+import com.cafeteria.cafedealtura.repository.CafeRepository;
 
 @Service
 public class CafeService {
 
-    private final Map<Long, Cafe> cafes = new HashMap<>();
-    private Long contadorId = 1L;
+    private final CafeRepository cafeRepository;
+
+    public CafeService(CafeRepository cafeRepository) {
+        this.cafeRepository = cafeRepository;
+    }
 
     public List<Cafe> obtenerTodos() {
-        return new ArrayList<>(cafes.values());
+        return cafeRepository.findAll();
     }
 
     public Optional<Cafe> obtenerPorId(Long id) {
-        return Optional.ofNullable(cafes.get(id));
+        return cafeRepository.findById(id);
     }
 
     public Cafe crear(Cafe cafe) {
-        cafe.setId(contadorId++);
-        cafes.put(cafe.getId(), cafe);
-        return cafe;
+        return cafeRepository.save(cafe);
     }
 
     public boolean existePorId(Long id) {
-        return cafes.containsKey(id);
+        return cafeRepository.existsById(id);
     }
 
     public Cafe reemplazar(Long id, Cafe nuevoCafe) {
         nuevoCafe.setId(id);
-        cafes.put(id, nuevoCafe);
-        return nuevoCafe;
+        return cafeRepository.save(nuevoCafe);
     }
 
     public Cafe actualizarParcial(Long id, Cafe cafeParcial) {
-        Cafe existente = cafes.get(id);
+        Cafe existente = cafeRepository.findById(id).orElseThrow();
         if (cafeParcial.getNombre() != null)
             existente.setNombre(cafeParcial.getNombre());
         if (cafeParcial.getDescripcion() != null)
@@ -50,10 +48,10 @@ public class CafeService {
             existente.setPrecio(cafeParcial.getPrecio());
         if (cafeParcial.getOrigen() != null)
             existente.setOrigen(cafeParcial.getOrigen());
-        return existente;
+        return cafeRepository.save(existente);
     }
 
     public boolean eliminar(Long id) {
-        return cafes.remove(id) != null;
+        return cafeRepository.deleteById(id);
     }
 }
