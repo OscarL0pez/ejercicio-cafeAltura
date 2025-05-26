@@ -1,45 +1,57 @@
 package com.cafeteria.cafedealtura.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cafeteria.cafedealtura.exception.ResourceNotFoundException;
 import com.cafeteria.cafedealtura.model.Customer;
 import com.cafeteria.cafedealtura.repository.CustomerRepository;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CustomerService {
 
-    private final CustomerRepository repository;
+    private final CustomerRepository customerRepository;
 
-    public CustomerService(CustomerRepository repository) {
-        this.repository = repository;
+    public CustomerService(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
     }
 
-    public Optional<Customer> findById(Long id) {
-        return repository.findById(id);
+    public List<Customer> getAllCustomers() {
+        return customerRepository.findAll();
     }
 
-    public Customer create(Customer customer) {
-        return repository.save(customer);
+    public Customer getCustomerById(Long id) {
+        return customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente", "id", id));
     }
 
-    public Customer update(Long id, Customer customer) {
-        customer.setId(id);
-        return repository.save(customer);
+    @Transactional
+    public Customer createCustomer(Customer customer) {
+        return customerRepository.save(customer);
     }
 
-    public boolean delete(Long id) {
-        return repository.deleteById(id);
+    @Transactional
+    public Customer updateCustomer(Long id, Customer customerDetails) {
+        Customer customer = getCustomerById(id);
+        if (customerDetails.getNombre() != null) {
+            customer.setNombre(customerDetails.getNombre());
+        }
+        return customerRepository.save(customer);
     }
 
-    public boolean exists(Long id) {
-        return repository.existsById(id);
+    @Transactional
+    public void deleteCustomer(Long id) {
+        Customer customer = getCustomerById(id);
+        customerRepository.delete(customer);
     }
 
-    public List<Customer> obtenerTodos() {
-        return repository.findAll();
+    // Método de ejemplo para crear un cliente de prueba
+    @Transactional
+    public Customer createSampleCustomer() {
+        Customer customer = new Customer();
+        customer.setNombre("Juan Pérez");
+        return customerRepository.save(customer);
     }
-
-
 }

@@ -3,23 +3,35 @@ package com.cafeteria.cafedealtura.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "orders")
 public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long idCliente;
-    private String nombreCliente;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
     private LocalDateTime fecha;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
+
     private double total;
 
-    public Order() {}
-
-    public Order(Long id, Long idCliente, String nombreCliente, LocalDateTime fecha, List<OrderItem> items, double total) {
-        this.id = id;
-        this.idCliente = idCliente;
-        this.nombreCliente = nombreCliente;
-        this.fecha = fecha;
-        this.items = items;
-        this.total = total;
+    public Order() {
     }
 
     public Long getId() {
@@ -30,20 +42,12 @@ public class Order {
         this.id = id;
     }
 
-    public Long getIdCliente() {
-        return idCliente;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setIdCliente(Long idCliente) {
-        this.idCliente = idCliente;
-    }
-
-    public String getNombreCliente() {
-        return nombreCliente;
-    }
-
-    public void setNombreCliente(String nombreCliente) {
-        this.nombreCliente = nombreCliente;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public LocalDateTime getFecha() {

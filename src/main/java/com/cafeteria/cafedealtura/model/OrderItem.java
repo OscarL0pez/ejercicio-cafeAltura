@@ -1,28 +1,66 @@
 package com.cafeteria.cafedealtura.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "order_items")
 public class OrderItem {
-    private Long idCafe;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
+
+    @ManyToOne
+    @JoinColumn(name = "cafe_id")
+    private Cafe cafe;
+
     private String nombre;
     private double precio;
     private int cantidad;
     private double subtotal;
 
-    public OrderItem() {}
+    public OrderItem() {
+    }
 
-    public OrderItem(Long idCafe, String nombre, double precio, int cantidad) {
-        this.idCafe = idCafe;
+    public OrderItem(Cafe cafe, String nombre, double precio, int cantidad) {
+        this.cafe = cafe;
         this.nombre = nombre;
         this.precio = precio;
         this.cantidad = cantidad;
         this.subtotal = precio * cantidad;
     }
 
-    public Long getIdCafe() {
-        return idCafe;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdCafe(Long idCafe) {
-        this.idCafe = idCafe;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
+    public Cafe getCafe() {
+        return cafe;
+    }
+
+    public void setCafe(Cafe cafe) {
+        this.cafe = cafe;
     }
 
     public String getNombre() {

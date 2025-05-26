@@ -52,6 +52,7 @@ public class CafeService {
     }
 
     public boolean eliminar(Long id) {
-        return cafeRepository.deleteById(id);
+        cafeRepository.deleteById(id);
+        return true;
     }
 }

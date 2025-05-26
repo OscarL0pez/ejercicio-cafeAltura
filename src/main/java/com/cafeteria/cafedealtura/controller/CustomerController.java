@@ -1,66 +1,54 @@
 package com.cafeteria.cafedealtura.controller;
 
-import com.cafeteria.cafedealtura.model.Customer;
-import com.cafeteria.cafedealtura.service.CustomerService;
-import org.springframework.http.HttpStatus;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.cafeteria.cafedealtura.model.Customer;
+import com.cafeteria.cafedealtura.service.CustomerService;
+
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/customers")
+@RequestMapping("/api/customers")
 public class CustomerController {
 
-    private final CustomerService service;
+    private final CustomerService customerService;
 
-    public CustomerController(CustomerService service) {
-        this.service = service;
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
     }
 
-    // POST /customers
     @PostMapping
-    public ResponseEntity<?> crear(@RequestBody Customer customer) {
-        if (customer.getNombre() == null || customer.getNombre().trim().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("El nombre del cliente es obligatorio.");
-        }
-
-        Customer creado = service.create(customer);
-        return ResponseEntity.status(HttpStatus.OK).body(creado);
+    public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
+        Customer savedCustomer = customerService.createCustomer(customer);
+        return ResponseEntity.ok(savedCustomer);
     }
 
-    // PUT /customers/{id}
+    @GetMapping("/{id}")
+    public ResponseEntity<Customer> getCustomerById(@PathVariable Long id) {
+        Customer customer = customerService.getCustomerById(id);
+        return ResponseEntity.ok(customer);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Customer customer) {
-        if (!service.exists(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente no encontrado.");
-        }
-
-        if (customer.getNombre() == null || customer.getNombre().trim().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("El nombre del cliente es obligatorio.");
-        }
-
-        Customer actualizado = service.update(id, customer);
-        return ResponseEntity.ok(actualizado);
+    public ResponseEntity<Customer> updateCustomer(
+            @PathVariable Long id,
+            @Valid @RequestBody Customer customerDetails) {
+        Customer updatedCustomer = customerService.updateCustomer(id, customerDetails);
+        return ResponseEntity.ok(updatedCustomer);
     }
 
-    // GET /customers → devuelve todos los clientes
     @GetMapping
-    public ResponseEntity<?> obtenerTodos() {
-        return ResponseEntity.ok(service.obtenerTodos());
+    public ResponseEntity<List<Customer>> getAllCustomers() {
+        List<Customer> customers = customerService.getAllCustomers();
+        return ResponseEntity.ok(customers);
     }
 
-
-
-
-    // DELETE /customers/{id}
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminar(@PathVariable Long id) {
-        if (!service.exists(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente no encontrado.");
-        }
-
-        service.delete(id);
-        return ResponseEntity.ok("Cliente eliminado.");
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+        customerService.deleteCustomer(id);
+        return ResponseEntity.noContent().build();
     }
 }

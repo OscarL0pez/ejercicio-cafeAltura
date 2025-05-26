@@ -4,89 +4,58 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.cafeteria.cafedealtura.model.Cafe;
-import com.cafeteria.cafedealtura.service.CafeService;
+import com.cafeteria.cafedealtura.repository.CafeRepository;
+
+import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/cafes")
+@RequestMapping("/api/cafes")
 public class CafeController {
 
-    private final CafeService cafeService;
+    private final CafeRepository cafeRepository;
 
-    public CafeController(CafeService cafeService) {
-        this.cafeService = cafeService;
+    public CafeController(CafeRepository cafeRepository) {
+        this.cafeRepository = cafeRepository;
     }
 
-    // GET /cafes
     @GetMapping
-    public ResponseEntity<List<Cafe>> obtenerTodos() {
-        return ResponseEntity.ok(cafeService.obtenerTodos());
+    public ResponseEntity<List<Cafe>> getAllCafes() {
+        List<Cafe> cafes = cafeRepository.findAll();
+        return ResponseEntity.ok(cafes);
     }
 
-    // POST /cafes
+    @GetMapping("/{id}")
+    public ResponseEntity<Cafe> getCafeById(@PathVariable Long id) {
+        return cafeRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
-    public ResponseEntity<?> crearCafe(@RequestBody Cafe cafe) {
-        // Validaciones manuales
-        if (cafe.getNombre() == null || cafe.getNombre().isEmpty()
-                || cafe.getDescripcion() == null || cafe.getDescripcion().isEmpty()
-                || cafe.getOrigen() == null || cafe.getOrigen().isEmpty()
-                || cafe.getPrecio() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Faltan atributos obligatorios o el precio no es válido.");
-        }
-
-        Cafe creado = cafeService.crear(cafe);
-        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
+    public ResponseEntity<Cafe> createCafe(@Valid @RequestBody Cafe cafe) {
+        Cafe savedCafe = cafeRepository.save(cafe);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCafe);
     }
 
-    // PUT /cafes/{id}
     @PutMapping("/{id}")
-    public ResponseEntity<?> reemplazarCafe(@PathVariable Long id, @RequestBody Cafe cafe) {
-        if (cafe.getNombre() == null || cafe.getNombre().isEmpty()
-                || cafe.getDescripcion() == null || cafe.getDescripcion().isEmpty()
-                || cafe.getOrigen() == null || cafe.getOrigen().isEmpty()
-                || cafe.getPrecio() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Faltan atributos obligatorios o el precio no es válido.");
+    public ResponseEntity<Cafe> updateCafe(@PathVariable Long id, @Valid @RequestBody Cafe cafe) {
+        if (!cafeRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
         }
-
-        if (!cafeService.existePorId(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Café no encontrado.");
-        }
-
-        Cafe actualizado = cafeService.reemplazar(id, cafe);
-        return ResponseEntity.ok(actualizado);
+        cafe.setId(id);
+        Cafe updatedCafe = cafeRepository.save(cafe);
+        return ResponseEntity.ok(updatedCafe);
     }
 
-    // PATCH /cafes/{id}
-    @PatchMapping("/{id}")
-    public ResponseEntity<?> actualizarParcial(@PathVariable Long id, @RequestBody Cafe cafe) {
-        if (!cafeService.existePorId(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Café no encontrado.");
-        }
-
-        Cafe actualizado = cafeService.actualizarParcial(id, cafe);
-        return ResponseEntity.ok(actualizado);
-    }
-
-    // DELETE /cafes/{id}
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminar(@PathVariable Long id) {
-        if (!cafeService.existePorId(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Café no encontrado.");
+    public ResponseEntity<Void> deleteCafe(@PathVariable Long id) {
+        if (!cafeRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
         }
-
-        cafeService.eliminar(id);
-        return ResponseEntity.noContent().build(); // 204 No Content
+        cafeRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,57 +1,77 @@
 package com.cafeteria.cafedealtura.controller;
 
-import com.cafeteria.cafedealtura.model.Order;
-import com.cafeteria.cafedealtura.model.OrderItem;
-import com.cafeteria.cafedealtura.service.OrderService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.cafeteria.cafedealtura.model.Order;
+import com.cafeteria.cafedealtura.model.OrderItem;
+import com.cafeteria.cafedealtura.model.Customer;
+import com.cafeteria.cafedealtura.service.OrderService;
+import com.cafeteria.cafedealtura.service.CustomerService;
+import com.cafeteria.cafedealtura.exception.ResourceNotFoundException;
+
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/orders")
 public class OrderController {
 
-    private final OrderService service;
+    private final OrderService orderService;
+    private final CustomerService customerService;
 
-    public OrderController(OrderService service) {
-        this.service = service;
+    public OrderController(OrderService orderService, CustomerService customerService) {
+        this.orderService = orderService;
+        this.customerService = customerService;
     }
 
-    // POST /orders → Crear pedido
-    @PostMapping
-    public ResponseEntity<?> crearPedido(
-            @RequestParam Long customerId,
-            @RequestBody List<OrderItem> items) {
+    @PostMapping("/{customerId}")
+    public ResponseEntity<Order> createOrder(
+            @PathVariable Long customerId,
+            @Valid @RequestBody List<OrderItem> items) {
+        // Obtener el cliente
+        Customer customer = customerService.getCustomerById(customerId);
 
-        Object resultado = service.create(customerId, items);
+        // Crear la orden con todos los datos necesarios
+        Order order = new Order();
+        order.setCustomer(customer);
+        order.setFecha(LocalDateTime.now());
+        order.setItems(items);
 
-        if (resultado instanceof String) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultado);
-        }
+        // Calcular el total de la orden
+        double total = items.stream()
+                .mapToDouble(item -> item.getPrecio() * item.getCantidad())
+                .sum();
+        order.setTotal(total);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
+        // Guardar la orden
+        Order savedOrder = orderService.createOrder(order);
+        return ResponseEntity.ok(savedOrder);
     }
 
-    // GET /orders → Todos los pedidos
     @GetMapping
-    public ResponseEntity<List<Order>> obtenerTodos() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<Order>> getAllOrders() {
+        List<Order> orders = orderService.getAllOrders();
+        return ResponseEntity.ok(orders);
     }
 
-    // GET /orders/{id} → Pedido por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Order> obtenerPorId(@PathVariable Long id) {
-        return service.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no encontrado."));
+    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+        Order order = orderService.getOrderById(id);
+        return ResponseEntity.ok(order);
     }
 
-    // GET /orders/customer/{customerId} → Pedidos de un cliente
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<Order>> obtenerPorCliente(@PathVariable Long customerId) {
-        return ResponseEntity.ok(service.findByCustomerId(customerId));
+    public ResponseEntity<List<Order>> getOrdersByCustomerId(@PathVariable Long customerId) {
+        List<Order> orders = orderService.getOrdersByCustomerId(customerId);
+        return ResponseEntity.ok(orders);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+        orderService.deleteOrder(id);
+        return ResponseEntity.noContent().build();
     }
 }
