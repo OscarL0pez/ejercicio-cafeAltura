@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.cafeteria.cafedealtura.model.Cafe;
 import com.cafeteria.cafedealtura.repository.CafeRepository;
+import com.cafeteria.cafedealtura.dto.CafeUpdateDTO;
 
 import jakarta.validation.Valid;
 
@@ -57,5 +58,31 @@ public class CafeController {
         }
         cafeRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Cafe> partialUpdateCafe(
+            @PathVariable Long id,
+            @Valid @RequestBody CafeUpdateDTO cafeUpdate) {
+        return cafeRepository.findById(id)
+                .map(existingCafe -> {
+                    // Actualizar solo los campos que no son null
+                    if (cafeUpdate.getNombre() != null) {
+                        existingCafe.setNombre(cafeUpdate.getNombre());
+                    }
+                    if (cafeUpdate.getDescripcion() != null) {
+                        existingCafe.setDescripcion(cafeUpdate.getDescripcion());
+                    }
+                    if (cafeUpdate.getPrecio() != null) {
+                        existingCafe.setPrecio(cafeUpdate.getPrecio());
+                    }
+                    if (cafeUpdate.getOrigen() != null) {
+                        existingCafe.setOrigen(cafeUpdate.getOrigen());
+                    }
+
+                    Cafe updatedCafe = cafeRepository.save(existingCafe);
+                    return ResponseEntity.ok(updatedCafe);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
