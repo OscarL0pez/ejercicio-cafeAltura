@@ -1,8 +1,36 @@
-# Compiled class files
-*.class
+# Archivos de entorno
+.env
+.env.*
 
-# Log file
+# Archivos de IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# Archivos de compilación
+target/
+*.class
+*.jar
+*.war
+
+# Logs
 *.log
+logs/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Archivos de Spring Boot
+.spring-boot-devtools.restart.trigger
 
 # BlueJ files
 *.ctxt
@@ -11,31 +39,17 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
-*.war
 *.ear
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-# Maven
-/target/
-!.mvn/wrapper/maven-wrapper.jar
-
 # Eclipse
-.project
-.classpath
 .csettings/
-.settings/
 /bin/
 
 # IntelliJ IDEA
-*.iml
-.idea/
 out/
-
-# VS Code
-.vscode/
 
 # OS generated files
 .DS_Store
@@ -49,6 +63,3 @@ Thumbs.db
 
 # Spring Boot devtools
 .spring-boot-devtools.properties
-
-# Environment files
-.env
