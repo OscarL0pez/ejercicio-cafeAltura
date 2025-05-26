@@ -54,11 +54,54 @@ src/main/java/com/cafeteria/cafedealtura/
 ## Endpoints Disponibles
 
 ### Cafés (`/api/cafes`)
-- `GET /` - Listar todos los cafés
-- `GET /{id}` - Obtener café por ID
-- `POST /` - Crear nuevo café
-- `PUT /{id}` - Actualizar café
-- `DELETE /{id}` - Eliminar café
+
+| Método | Endpoint | Descripción | Cuerpo de la Petición | Respuesta |
+|--------|----------|-------------|----------------------|-----------|
+| GET | `/api/cafes` | Obtener todos los cafés | - | Lista de cafés |
+| GET | `/api/cafes/{id}` | Obtener un café por ID | - | Café |
+| POST | `/api/cafes` | Crear un nuevo café | `{ "nombre": "string", "descripcion": "string", "precio": number, "origen": "string" }` | Café creado |
+| PUT | `/api/cafes/{id}` | Actualizar un café completo | `{ "nombre": "string", "descripcion": "string", "precio": number, "origen": "string" }` | Café actualizado |
+| PATCH | `/api/cafes/{id}` | Actualizar parcialmente un café | `{ "nombre": "string", "descripcion": "string", "precio": number, "origen": "string" }` | Café actualizado |
+| DELETE | `/api/cafes/{id}` | Eliminar un café | - | Sin contenido |
+
+#### Ejemplos de Peticiones
+
+1. Crear un café:
+```http
+POST /api/cafes
+Content-Type: application/json
+
+{
+    "nombre": "Café Colombiano",
+    "descripcion": "Café suave y aromático de las montañas de Colombia",
+    "precio": 9.99,
+    "origen": "Colombia"
+}
+```
+
+2. Actualizar parcialmente un café:
+```http
+PATCH /api/cafes/1
+Content-Type: application/json
+
+{
+    "precio": 12.99,
+    "descripcion": "Nueva descripción del café"
+}
+```
+
+3. Actualizar un café completo:
+```http
+PUT /api/cafes/1
+Content-Type: application/json
+
+{
+    "nombre": "Café Colombiano Premium",
+    "descripcion": "Café de alta calidad de las montañas de Colombia",
+    "precio": 12.99,
+    "origen": "Colombia"
+}
+```
 
 ### Clientes (`/api/customers`)
 - `GET /` - Listar todos los clientes
