@@ -12,6 +12,30 @@ import com.cafeteria.cafedealtura.service.OrderService;
 
 import jakarta.validation.Valid;
 
+/**
+ * Controlador de ejemplo para la gestión de clientes y pedidos.
+ * 
+ * Proporciona endpoints REST para crear, consultar, actualizar y eliminar
+ * clientes,
+ * así como para crear un cliente de ejemplo. Utiliza los servicios
+ * CustomerService
+ * y OrderService para realizar las operaciones de negocio.
+ * 
+ * Endpoints disponibles:
+ * - POST /api/examples/customer : Crea un cliente de ejemplo
+ * - POST /api/examples/customers : Crea un nuevo cliente con los datos
+ * proporcionados
+ * - GET /api/examples/customers : Obtiene la lista de todos los clientes
+ * - GET /api/examples/customers/{id} : Obtiene un cliente por su ID
+ * - PUT /api/examples/customers/{id} : Actualiza los datos de un cliente
+ * existente
+ * - DELETE /api/examples/customers/{id} : Elimina un cliente por su ID
+ * 
+ * Este controlador es útil para pruebas y ejemplos de integración con los
+ * servicios
+ * de clientes y pedidos.
+ */
+
 @RestController
 @RequestMapping("/api/examples")
 public class ExampleController {

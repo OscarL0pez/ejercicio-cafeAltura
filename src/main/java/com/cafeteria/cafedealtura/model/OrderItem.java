@@ -8,24 +8,64 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+/**
+ * Entidad que representa un item individual dentro de un pedido.
+ * Esta clase mapea la tabla 'order_items' en la base de datos.
+ * 
+ * Características principales:
+ * - Relación Many-to-One con Order (muchos items pueden pertenecer a un pedido)
+ * - Relación Many-to-One con Cafe (muchos items pueden referenciar al mismo
+ * café)
+ * - Cálculo automático del subtotal (precio * cantidad)
+ */
 @Entity
 @Table(name = "order_items")
 public class OrderItem {
+    /**
+     * Identificador único del item.
+     * Se genera automáticamente al crear un nuevo registro.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    /**
+     * Pedido al que pertenece este item.
+     * Relación Many-to-One: muchos items pueden pertenecer a un mismo pedido.
+     */
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
 
+    /**
+     * Café asociado a este item.
+     * Relación Many-to-One: muchos items pueden referenciar al mismo café.
+     */
     @ManyToOne
     @JoinColumn(name = "cafe_id")
     private Cafe cafe;
 
+    /**
+     * Nombre del café en el momento de la compra.
+     * Se guarda una copia para mantener el histórico.
+     */
     private String nombre;
+
+    /**
+     * Precio unitario del café en el momento de la compra.
+     * Se guarda una copia para mantener el histórico.
+     */
     private double precio;
+
+    /**
+     * Cantidad de unidades del café en este item.
+     */
     private int cantidad;
+
+    /**
+     * Subtotal del item (precio * cantidad).
+     * Se calcula automáticamente al establecer el precio y la cantidad.
+     */
     private double subtotal;
 
     public OrderItem() {

@@ -9,23 +9,52 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+/**
+ * Entidad que representa un café en el sistema.
+ * Esta clase mapea la tabla 'cafes' en la base de datos.
+ * 
+ * Características principales:
+ * - ID autoincremental
+ * - Validaciones de campos obligatorios
+ * - Precio debe ser positivo
+ */
 @Entity
 @Table(name = "cafes")
 public class Cafe {
+    /**
+     * Identificador único del café.
+     * Se genera automáticamente al crear un nuevo registro.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    /**
+     * Nombre del café.
+     * No puede estar vacío.
+     */
     @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
 
+    /**
+     * Descripción detallada del café.
+     * No puede estar vacía.
+     */
     @NotBlank(message = "La descripción es obligatoria")
     private String descripcion;
 
+    /**
+     * Precio del café.
+     * Debe ser un valor positivo mayor que cero.
+     */
     @NotNull(message = "El precio es obligatorio")
     @Positive(message = "El precio debe ser mayor que 0")
     private double precio;
 
+    /**
+     * País o región de origen del café.
+     * No puede estar vacío.
+     */
     @NotBlank(message = "El origen es obligatorio")
     private String origen;
 

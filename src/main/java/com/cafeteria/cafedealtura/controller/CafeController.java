@@ -12,6 +12,18 @@ import com.cafeteria.cafedealtura.dto.CafeUpdateDTO;
 
 import jakarta.validation.Valid;
 
+/**
+ * Controlador REST para la gestión de cafés.
+ * Proporciona endpoints para realizar operaciones CRUD sobre los cafés.
+ * 
+ * Endpoints disponibles:
+ * - GET /api/cafes - Listar todos los cafés
+ * - GET /api/cafes/{id} - Obtener un café por ID
+ * - POST /api/cafes - Crear un nuevo café
+ * - PUT /api/cafes/{id} - Actualizar un café completo
+ * - PATCH /api/cafes/{id} - Actualizar parcialmente un café
+ * - DELETE /api/cafes/{id} - Eliminar un café
+ */
 @RestController
 @RequestMapping("/api/cafes")
 public class CafeController {
@@ -22,12 +34,23 @@ public class CafeController {
         this.cafeRepository = cafeRepository;
     }
 
+    /**
+     * Obtiene todos los cafés disponibles.
+     * 
+     * @return Lista de todos los cafés con estado 200 OK
+     */
     @GetMapping
     public ResponseEntity<List<Cafe>> getAllCafes() {
         List<Cafe> cafes = cafeRepository.findAll();
         return ResponseEntity.ok(cafes);
     }
 
+    /**
+     * Obtiene un café específico por su ID.
+     * 
+     * @param id ID del café a buscar
+     * @return Café encontrado con estado 200 OK, o 404 Not Found si no existe
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Cafe> getCafeById(@PathVariable Long id) {
         return cafeRepository.findById(id)
@@ -35,12 +58,25 @@ public class CafeController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Crea un nuevo café.
+     * 
+     * @param cafe Datos del café a crear (validados con @Valid)
+     * @return Café creado con estado 201 Created
+     */
     @PostMapping
     public ResponseEntity<Cafe> createCafe(@Valid @RequestBody Cafe cafe) {
         Cafe savedCafe = cafeRepository.save(cafe);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCafe);
     }
 
+    /**
+     * Actualiza un café existente completamente.
+     * 
+     * @param id   ID del café a actualizar
+     * @param cafe Nuevos datos del café (validados con @Valid)
+     * @return Café actualizado con estado 200 OK, o 404 Not Found si no existe
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Cafe> updateCafe(@PathVariable Long id, @Valid @RequestBody Cafe cafe) {
         if (!cafeRepository.existsById(id)) {
@@ -51,6 +87,13 @@ public class CafeController {
         return ResponseEntity.ok(updatedCafe);
     }
 
+    /**
+     * Elimina un café existente.
+     * 
+     * @param id ID del café a eliminar
+     * @return 204 No Content si se eliminó correctamente, o 404 Not Found si no
+     *         existe
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCafe(@PathVariable Long id) {
         if (!cafeRepository.existsById(id)) {
@@ -60,6 +103,14 @@ public class CafeController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Actualiza parcialmente un café existente.
+     * Solo se actualizan los campos que no son null en el DTO.
+     * 
+     * @param id         ID del café a actualizar
+     * @param cafeUpdate DTO con los campos a actualizar (validados con @Valid)
+     * @return Café actualizado con estado 200 OK, o 404 Not Found si no existe
+     */
     @PatchMapping("/{id}")
     public ResponseEntity<Cafe> partialUpdateCafe(
             @PathVariable Long id,

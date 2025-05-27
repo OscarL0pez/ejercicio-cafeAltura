@@ -15,6 +15,17 @@ import com.cafeteria.cafedealtura.exception.ResourceNotFoundException;
 
 import jakarta.validation.Valid;
 
+/**
+ * Controlador REST para la gestión de pedidos.
+ * Proporciona endpoints para crear, consultar y eliminar pedidos.
+ * 
+ * Endpoints disponibles:
+ * - POST /api/orders/{customerId} - Crear un nuevo pedido para un cliente
+ * - GET /api/orders - Listar todos los pedidos
+ * - GET /api/orders/{id} - Obtener un pedido por ID
+ * - GET /api/orders/customer/{customerId} - Obtener pedidos por cliente
+ * - DELETE /api/orders/{id} - Eliminar un pedido
+ */
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -27,6 +38,16 @@ public class OrderController {
         this.customerService = customerService;
     }
 
+    /**
+     * Crea un nuevo pedido para un cliente específico.
+     * El pedido incluye una lista de items (cafés) y calcula automáticamente el
+     * total.
+     * 
+     * @param customerId ID del cliente que realiza el pedido
+     * @param items      Lista de items (cafés) en el pedido
+     * @return Pedido creado con estado 200 OK
+     * @throws ResourceNotFoundException si el cliente no existe
+     */
     @PostMapping("/{customerId}")
     public ResponseEntity<Order> createOrder(
             @PathVariable Long customerId,
@@ -51,24 +72,50 @@ public class OrderController {
         return ResponseEntity.ok(savedOrder);
     }
 
+    /**
+     * Obtiene todos los pedidos del sistema.
+     * 
+     * @return Lista de todos los pedidos con estado 200 OK
+     */
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {
         List<Order> orders = orderService.getAllOrders();
         return ResponseEntity.ok(orders);
     }
 
+    /**
+     * Obtiene un pedido específico por su ID.
+     * 
+     * @param id ID del pedido a buscar
+     * @return Pedido encontrado con estado 200 OK
+     * @throws ResourceNotFoundException si el pedido no existe
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
         Order order = orderService.getOrderById(id);
         return ResponseEntity.ok(order);
     }
 
+    /**
+     * Obtiene todos los pedidos de un cliente específico.
+     * 
+     * @param customerId ID del cliente
+     * @return Lista de pedidos del cliente con estado 200 OK
+     * @throws ResourceNotFoundException si el cliente no existe
+     */
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<Order>> getOrdersByCustomerId(@PathVariable Long customerId) {
         List<Order> orders = orderService.getOrdersByCustomerId(customerId);
         return ResponseEntity.ok(orders);
     }
 
+    /**
+     * Elimina un pedido existente.
+     * 
+     * @param id ID del pedido a eliminar
+     * @return 204 No Content si se eliminó correctamente
+     * @throws ResourceNotFoundException si el pedido no existe
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
