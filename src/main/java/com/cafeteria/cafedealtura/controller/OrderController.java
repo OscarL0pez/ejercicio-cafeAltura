@@ -2,6 +2,7 @@ package com.cafeteria.cafedealtura.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -15,6 +16,9 @@ import com.cafeteria.cafedealtura.service.OrderService;
 import com.cafeteria.cafedealtura.service.CustomerService;
 import com.cafeteria.cafedealtura.exception.ResourceNotFoundException;
 import com.cafeteria.cafedealtura.dto.PaginatedResponse;
+import com.cafeteria.cafedealtura.dto.OrderItemDTO;
+import com.cafeteria.cafedealtura.service.CafeService;
+import com.cafeteria.cafedealtura.model.Cafe;
 
 import jakarta.validation.Valid;
 
@@ -51,10 +55,12 @@ public class OrderController {
 
     private final OrderService orderService;
     private final CustomerService customerService;
+    private final CafeService cafeService;
 
-    public OrderController(OrderService orderService, CustomerService customerService) {
+    public OrderController(OrderService orderService, CustomerService customerService, CafeService cafeService) {
         this.orderService = orderService;
         this.customerService = customerService;
+        this.cafeService = cafeService;
     }
 
     /**
@@ -63,14 +69,14 @@ public class OrderController {
      * total.
      * 
      * @param customerId ID del cliente que realiza el pedido
-     * @param items      Lista de items (cafés) en el pedido
+     * @param itemDTOs   Lista de items (cafés) en el pedido
      * @return Pedido creado con estado 200 OK
      * @throws ResourceNotFoundException si el cliente no existe
      */
     @PostMapping("/{customerId}")
     public ResponseEntity<Order> createOrder(
             @PathVariable Long customerId,
-            @Valid @RequestBody List<OrderItem> items) {
+            @Valid @RequestBody List<OrderItemDTO> itemDTOs) {
         // Obtener el cliente
         Customer customer = customerService.getCustomerById(customerId);
 
@@ -78,11 +84,19 @@ public class OrderController {
         Order order = new Order();
         order.setCustomer(customer);
         order.setFecha(LocalDateTime.now());
+        List<OrderItem> items = new ArrayList<>();
+        for (OrderItemDTO dto : itemDTOs) {
+            Cafe cafe = cafeService.getCafeById(dto.getCafeId());
+            OrderItem item = new OrderItem(cafe, (dto.getNombre() != null ? dto.getNombre() : cafe.getNombre()),
+                    (dto.getPrecio() > 0 ? dto.getPrecio() : cafe.getPrecio()), dto.getCantidad());
+            item.setOrder(order);
+            items.add(item);
+        }
         order.setItems(items);
 
         // Calcular el total de la orden
         double total = items.stream()
-                .mapToDouble(item -> item.getPrecio() * item.getCantidad())
+                .mapToDouble(item -> item.getSubtotal())
                 .sum();
         order.setTotal(total);
 

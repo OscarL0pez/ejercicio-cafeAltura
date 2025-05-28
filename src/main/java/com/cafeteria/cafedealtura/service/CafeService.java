@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.cafeteria.cafedealtura.model.Cafe;
 import com.cafeteria.cafedealtura.repository.CafeRepository;
+import com.cafeteria.cafedealtura.exception.ResourceNotFoundException;
 
 @Service
 public class CafeService {
@@ -64,5 +65,9 @@ public class CafeService {
     public boolean eliminar(Long id) {
         cafeRepository.deleteById(id);
         return true;
+    }
+
+    public Cafe getCafeById(Long id) {
+        return cafeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Café", "id", id));
     }
 }
