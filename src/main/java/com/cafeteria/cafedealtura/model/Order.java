@@ -31,7 +31,7 @@ public class Order {
      * Se genera automáticamente al crear un nuevo registro.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
