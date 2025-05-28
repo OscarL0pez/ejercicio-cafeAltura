@@ -189,34 +189,47 @@
 
         // Cargar Pedidos
         async function loadPedidos(page) {
-            const pageSize = document.getElementById('pedidoPageSize').value;
-            const response = await fetch(`/api/orders?page=${page}&size=${pageSize}`);
-            const data = await response.json();
+            try {
+                const pageSize = document.getElementById('pedidoPageSize').value;
+                const response = await fetch(`/api/orders?page=${page}&size=${pageSize}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
 
-            const content = document.getElementById('pedidosContent');
-            content.innerHTML = data.content.map(pedido => `
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Pedido #${pedido.id}</h5>
-                        <p class="card-text">
-                            <strong>Cliente:</strong> ${pedido.customer.nombre}<br>
-                            <strong>Fecha:</strong> ${formatDate(pedido.fecha)}<br>
-                            <strong>Total:</strong> ${formatCurrency(pedido.total)}
-                        </p>
-                        <h6>Items:</h6>
-                        <ul class="list-group list-group-flush">
-                            ${pedido.items.map(item => `
-                                <li class="list-group-item">
-                                    ${item.nombre} - ${item.cantidad} x ${formatCurrency(item.precio)} = ${formatCurrency(item.subtotal)}
-                                </li>
-                            `).join('')}
-                        </ul>
+                const content = document.getElementById('pedidosContent');
+                content.innerHTML = data.content.map(pedido => `
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Pedido #${pedido.id}</h5>
+                            <p class="card-text">
+                                <strong>Cliente:</strong> ${pedido.customer.nombre}<br>
+                                <strong>Fecha:</strong> ${formatDate(pedido.fecha)}<br>
+                                <strong>Total:</strong> ${formatCurrency(pedido.total)}
+                            </p>
+                            <h6>Items:</h6>
+                            <ul class="list-group list-group-flush">
+                                ${pedido.items.map(item => `
+                                    <li class="list-group-item">
+                                        ${item.nombre} - ${item.cantidad} x ${formatCurrency(item.precio)} = ${formatCurrency(item.subtotal)}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
 
-            showPaginationInfo(data, 'pedidosPagination');
-            createPaginationButtons(data.currentPage, data.totalPages, 'pedidosPaginationButtons', 'loadPedidos');
+                showPaginationInfo(data, 'pedidosPagination');
+                createPaginationButtons(data.currentPage, data.totalPages, 'pedidosPaginationButtons', 'loadPedidos');
+            } catch (error) {
+                console.error('Error al cargar pedidos:', error);
+                const content = document.getElementById('pedidosContent');
+                content.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        Error al cargar los pedidos: ${error.message}
+                    </div>
+                `;
+            }
         }
 
         // Cargar datos iniciales

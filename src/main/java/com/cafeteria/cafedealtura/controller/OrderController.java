@@ -3,6 +3,7 @@ package com.cafeteria.cafedealtura.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -17,6 +18,7 @@ import com.cafeteria.cafedealtura.service.CustomerService;
 import com.cafeteria.cafedealtura.exception.ResourceNotFoundException;
 import com.cafeteria.cafedealtura.dto.PaginatedResponse;
 import com.cafeteria.cafedealtura.dto.OrderItemDTO;
+import com.cafeteria.cafedealtura.dto.OrderResponseDTO;
 import com.cafeteria.cafedealtura.service.CafeService;
 import com.cafeteria.cafedealtura.model.Cafe;
 
@@ -130,9 +132,11 @@ public class OrderController {
      *         }
      */
     @GetMapping
-    public ResponseEntity<PaginatedResponse<Order>> getAllOrders(
+    public ResponseEntity<PaginatedResponse<OrderResponseDTO>> getAllOrders(
             @PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(new PaginatedResponse<>(orderService.getAllOrders(pageable)));
+        var page = orderService.getAllOrders(pageable);
+        var dtoPage = page.map(OrderResponseDTO::new);
+        return ResponseEntity.ok(new PaginatedResponse<>(dtoPage));
     }
 
     /**
@@ -143,9 +147,9 @@ public class OrderController {
      * @throws ResourceNotFoundException si el pedido no existe
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+    public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable Long id) {
         Order order = orderService.getOrderById(id);
-        return ResponseEntity.ok(order);
+        return ResponseEntity.ok(new OrderResponseDTO(order));
     }
 
     /**
@@ -156,9 +160,12 @@ public class OrderController {
      * @throws ResourceNotFoundException si el cliente no existe
      */
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<Order>> getOrdersByCustomerId(@PathVariable Long customerId) {
+    public ResponseEntity<List<OrderResponseDTO>> getOrdersByCustomerId(@PathVariable Long customerId) {
         List<Order> orders = orderService.getOrdersByCustomerId(customerId);
-        return ResponseEntity.ok(orders);
+        List<OrderResponseDTO> dtoOrders = orders.stream()
+                .map(OrderResponseDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtoOrders);
     }
 
     /**
