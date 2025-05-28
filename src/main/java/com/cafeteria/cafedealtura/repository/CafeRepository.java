@@ -9,4 +9,5 @@ import com.cafeteria.cafedealtura.model.Cafe;
 public interface CafeRepository extends JpaRepository<Cafe, Long> {
     // Los métodos básicos CRUD vienen incluidos en JpaRepository
     // Podemos agregar métodos personalizados aquí si los necesitamos
+    boolean existsByName(String name);
 }

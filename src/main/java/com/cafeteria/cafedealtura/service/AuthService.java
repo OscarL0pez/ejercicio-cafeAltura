@@ -1,58 +1,83 @@
 package com.cafeteria.cafedealtura.service;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import com.cafeteria.cafedealtura.dto.AuthResponseDTO;
+import com.cafeteria.cafedealtura.dto.LoginRequestDTO;
+import com.cafeteria.cafedealtura.dto.RegisterRequestDTO;
+import com.cafeteria.cafedealtura.exception.BadRequestException;
+import com.cafeteria.cafedealtura.model.Role;
+import com.cafeteria.cafedealtura.model.User;
+import com.cafeteria.cafedealtura.repository.UserRepository;
+import com.cafeteria.cafedealtura.security.JwtTokenProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cafeteria.cafedealtura.dto.LoginRequestDTO;
-import com.cafeteria.cafedealtura.dto.RegisterRequestDTO;
-import com.cafeteria.cafedealtura.model.Customer;
-import com.cafeteria.cafedealtura.model.Role;
-import com.cafeteria.cafedealtura.model.Role.RoleType;
-import com.cafeteria.cafedealtura.repository.CustomerRepository;
-import com.cafeteria.cafedealtura.repository.RoleRepository;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
 
-    private final CustomerRepository customerRepository;
-    private final RoleRepository roleRepository;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
-    public AuthService(CustomerRepository customerRepository,
-            RoleRepository roleRepository) {
-        this.customerRepository = customerRepository;
-        this.roleRepository = roleRepository;
-    }
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleService roleService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     @Transactional
-    public Customer registerUser(RegisterRequestDTO request) {
-        if (customerRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("El email ya está registrado");
+    public AuthResponseDTO register(RegisterRequestDTO registerRequest) {
+        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            throw new BadRequestException("El email ya está registrado");
         }
-        Customer customer = new Customer();
-        customer.setNombre(request.getNombre());
-        customer.setEmail(request.getEmail());
-        customer.setPassword(request.getPassword()); // Guardar en texto plano
+
+        User user = new User();
+        user.setName(registerRequest.getName());
+        user.setEmail(registerRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+
         Set<Role> roles = new HashSet<>();
-        Role userRole = roleRepository.findByName(RoleType.ROLE_USER)
-                .orElseGet(() -> {
-                    Role role = new Role(RoleType.ROLE_USER);
-                    return roleRepository.save(role);
-                });
+        Role userRole = roleService.findByName("USER")
+                .orElseThrow(() -> new BadRequestException("Error: Rol no encontrado"));
         roles.add(userRole);
-        customer.setRoles(roles);
-        return customerRepository.save(customer);
+        user.setRoles(roles);
+
+        userRepository.save(user);
+
+        String jwt = jwtTokenProvider.generateToken(user);
+        Set<String> roleNames = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+
+        return new AuthResponseDTO(jwt, user.getId(), user.getName(), user.getEmail(), roleNames);
     }
 
-    @Transactional(readOnly = true)
-    public Customer login(LoginRequestDTO request) {
-        Customer customer = customerRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        if (!request.getPassword().equals(customer.getPassword())) {
-            throw new RuntimeException("Contraseña incorrecta");
-        }
-        return customer;
+    public AuthResponseDTO login(LoginRequestDTO loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        User user = (User) authentication.getPrincipal();
+        String jwt = jwtTokenProvider.generateToken(user);
+
+        Set<String> roles = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+
+        return new AuthResponseDTO(jwt, user.getId(), user.getName(), user.getEmail(), roles);
     }
 }

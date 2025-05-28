@@ -1,6 +1,8 @@
 package com.cafeteria.cafedealtura.controller;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -10,11 +12,15 @@ import org.springframework.web.bind.annotation.*;
 
 import com.cafeteria.cafedealtura.model.Cafe;
 import com.cafeteria.cafedealtura.repository.CafeRepository;
+import com.cafeteria.cafedealtura.dto.CafeDTO;
+import com.cafeteria.cafedealtura.dto.CafeCreateDTO;
 import com.cafeteria.cafedealtura.dto.CafeUpdateDTO;
 import com.cafeteria.cafedealtura.dto.PaginatedResponse;
 import com.cafeteria.cafedealtura.service.CafeService;
+import com.cafeteria.cafedealtura.security.annotation.RequireRole;
 
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Controlador REST para la gestión de cafés.
@@ -31,7 +37,6 @@ import jakarta.validation.Valid;
  * - GET /api/cafes/{id} - Obtener un café por ID
  * - POST /api/cafes - Crear un nuevo café
  * - PUT /api/cafes/{id} - Actualizar un café completo
- * - PATCH /api/cafes/{id} - Actualizar parcialmente un café
  * - DELETE /api/cafes/{id} - Eliminar un café
  * 
  * Todas las respuestas de listado (GET /api/cafes) incluyen metadatos de
@@ -46,13 +51,11 @@ import jakarta.validation.Valid;
  */
 @RestController
 @RequestMapping("/api/cafes")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class CafeController {
 
-    private final CafeService cafeService;
-
-    public CafeController(CafeService cafeService) {
-        this.cafeService = cafeService;
-    }
+    @Autowired
+    private CafeService cafeService;
 
     /**
      * Obtiene todos los cafés disponibles con paginación.
@@ -79,9 +82,8 @@ public class CafeController {
      *         }
      */
     @GetMapping
-    public ResponseEntity<PaginatedResponse<Cafe>> getAllCafes(
-            @PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(new PaginatedResponse<>(cafeService.obtenerTodos(pageable)));
+    public ResponseEntity<List<CafeDTO>> getAllCafes() {
+        return ResponseEntity.ok(cafeService.findAll());
     }
 
     /**
@@ -91,10 +93,8 @@ public class CafeController {
      * @return Café encontrado con estado 200 OK, o 404 Not Found si no existe
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Cafe> getCafeById(@PathVariable Long id) {
-        return cafeService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<CafeDTO> getCafeById(@PathVariable Long id) {
+        return ResponseEntity.ok(cafeService.findById(id));
     }
 
     /**
@@ -103,10 +103,10 @@ public class CafeController {
      * @param cafe Datos del café a crear (validados con @Valid)
      * @return Café creado con estado 201 Created
      */
+    @RequireRole("ADMIN")
     @PostMapping
-    public ResponseEntity<Cafe> createCafe(@Valid @RequestBody Cafe cafe) {
-        Cafe savedCafe = cafeService.save(cafe);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCafe);
+    public ResponseEntity<CafeDTO> createCafe(@Valid @RequestBody CafeDTO cafeDTO) {
+        return ResponseEntity.ok(cafeService.create(cafeDTO));
     }
 
     /**
@@ -116,14 +116,10 @@ public class CafeController {
      * @param cafe Nuevos datos del café (validados con @Valid)
      * @return Café actualizado con estado 200 OK, o 404 Not Found si no existe
      */
+    @RequireRole("ADMIN")
     @PutMapping("/{id}")
-    public ResponseEntity<Cafe> updateCafe(@PathVariable Long id, @Valid @RequestBody Cafe cafe) {
-        if (!cafeService.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        cafe.setId(id);
-        Cafe updatedCafe = cafeService.save(cafe);
-        return ResponseEntity.ok(updatedCafe);
+    public ResponseEntity<CafeDTO> updateCafe(@PathVariable Long id, @Valid @RequestBody CafeDTO cafeDTO) {
+        return ResponseEntity.ok(cafeService.update(id, cafeDTO));
     }
 
     /**
@@ -133,46 +129,24 @@ public class CafeController {
      * @return 204 No Content si se eliminó correctamente, o 404 Not Found si no
      *         existe
      */
+    @RequireRole("ADMIN")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCafe(@PathVariable Long id) {
-        if (!cafeService.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        cafeService.deleteById(id);
+        cafeService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Actualiza parcialmente un café existente.
-     * Solo se actualizan los campos que no son null en el DTO.
-     * 
-     * @param id         ID del café a actualizar
-     * @param cafeUpdate DTO con los campos a actualizar (validados con @Valid)
-     * @return Café actualizado con estado 200 OK, o 404 Not Found si no existe
-     */
-    @PatchMapping("/{id}")
-    public ResponseEntity<Cafe> partialUpdateCafe(
-            @PathVariable Long id,
-            @Valid @RequestBody CafeUpdateDTO cafeUpdate) {
-        return cafeService.findById(id)
-                .map(existingCafe -> {
-                    // Actualizar solo los campos que no son null
-                    if (cafeUpdate.getNombre() != null) {
-                        existingCafe.setNombre(cafeUpdate.getNombre());
-                    }
-                    if (cafeUpdate.getDescripcion() != null) {
-                        existingCafe.setDescripcion(cafeUpdate.getDescripcion());
-                    }
-                    if (cafeUpdate.getPrecio() != null) {
-                        existingCafe.setPrecio(cafeUpdate.getPrecio());
-                    }
-                    if (cafeUpdate.getOrigen() != null) {
-                        existingCafe.setOrigen(cafeUpdate.getOrigen());
-                    }
+    // ADMIN y MANAGER pueden ver estadísticas de ventas
+    @RequireRole({ "ADMIN", "MANAGER" })
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Object>> getCafeStats() {
+        return ResponseEntity.ok(cafeService.getStats());
+    }
 
-                    Cafe updatedCafe = cafeService.save(existingCafe);
-                    return ResponseEntity.ok(updatedCafe);
-                })
-                .orElse(ResponseEntity.notFound().build());
+    // ADMIN y MANAGER pueden actualizar el stock
+    @RequireRole({ "ADMIN", "MANAGER" })
+    @PatchMapping("/{id}/stock")
+    public ResponseEntity<CafeDTO> updateStock(@PathVariable Long id, @RequestParam int quantity) {
+        return ResponseEntity.ok(cafeService.updateStock(id, quantity));
     }
 }

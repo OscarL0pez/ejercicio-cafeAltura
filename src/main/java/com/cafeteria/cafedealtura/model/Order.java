@@ -39,14 +39,14 @@ public class Order {
      * Relación Many-to-One: muchos pedidos pueden pertenecer a un mismo cliente.
      */
     @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     /**
      * Fecha y hora en que se realizó el pedido.
      * Se establece automáticamente al crear el pedido.
      */
-    private LocalDateTime fecha;
+    private LocalDateTime date;
 
     /**
      * Lista de items (cafés) en el pedido.
@@ -74,20 +74,20 @@ public class Order {
         this.id = id;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public User getUser() {
+        return user;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public LocalDateTime getFecha() {
-        return fecha;
+    public LocalDateTime getDate() {
+        return date;
     }
 
-    public void setFecha(LocalDateTime fecha) {
-        this.fecha = fecha;
+    public void setDate(LocalDateTime date) {
+        this.date = date;
     }
 
     public List<OrderItem> getItems() {

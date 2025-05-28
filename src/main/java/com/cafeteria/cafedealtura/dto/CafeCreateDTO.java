@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-public class CafeUpdateDTO {
+public class CafeCreateDTO {
 
     @NotBlank(message = "El nombre es obligatorio")
     private String name;
@@ -19,10 +19,10 @@ public class CafeUpdateDTO {
     @NotBlank(message = "El origen es obligatorio")
     private String origin;
 
-    public CafeUpdateDTO() {
+    public CafeCreateDTO() {
     }
 
-    public CafeUpdateDTO(String name, String description, double price, String origin) {
+    public CafeCreateDTO(String name, String description, double price, String origin) {
         this.name = name;
         this.description = description;
         this.price = price;

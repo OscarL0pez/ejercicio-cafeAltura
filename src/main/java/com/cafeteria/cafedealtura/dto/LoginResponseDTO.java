@@ -1,19 +1,17 @@
 package com.cafeteria.cafedealtura.dto;
 
-import com.cafeteria.cafedealtura.model.Customer;
-
 public class LoginResponseDTO {
-    private Customer user;
+    private String token;
 
-    public LoginResponseDTO(Customer user) {
-        this.user = user;
+    public LoginResponseDTO(String token) {
+        this.token = token;
     }
 
-    public Customer getUser() {
-        return user;
+    public String getToken() {
+        return token;
     }
 
-    public void setUser(Customer user) {
-        this.user = user;
+    public void setToken(String token) {
+        this.token = token;
     }
 }

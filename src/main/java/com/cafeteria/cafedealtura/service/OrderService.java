@@ -1,109 +1,92 @@
 package com.cafeteria.cafedealtura.service;
 
+import com.cafeteria.cafedealtura.dto.OrderDTO;
+import com.cafeteria.cafedealtura.dto.OrderResponseDTO;
+import com.cafeteria.cafedealtura.exception.ResourceNotFoundException;
+import com.cafeteria.cafedealtura.model.Cafe;
+import com.cafeteria.cafedealtura.model.Order;
+import com.cafeteria.cafedealtura.model.OrderItem;
+import com.cafeteria.cafedealtura.model.User;
+import com.cafeteria.cafedealtura.repository.CafeRepository;
+import com.cafeteria.cafedealtura.repository.OrderRepository;
+import com.cafeteria.cafedealtura.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.cafeteria.cafedealtura.exception.ResourceNotFoundException;
-import com.cafeteria.cafedealtura.model.Customer;
-import com.cafeteria.cafedealtura.model.Order;
-import com.cafeteria.cafedealtura.model.OrderItem;
-import com.cafeteria.cafedealtura.model.Cafe;
-import com.cafeteria.cafedealtura.repository.OrderRepository;
-import com.cafeteria.cafedealtura.repository.CustomerRepository;
-import com.cafeteria.cafedealtura.repository.CafeRepository;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
     private final CafeRepository cafeRepository;
 
-    public OrderService(OrderRepository orderRepository,
-            CustomerRepository customerRepository,
+    public OrderService(OrderRepository orderRepository, UserRepository userRepository,
             CafeRepository cafeRepository) {
         this.orderRepository = orderRepository;
-        this.customerRepository = customerRepository;
+        this.userRepository = userRepository;
         this.cafeRepository = cafeRepository;
     }
 
-    public Page<Order> getAllOrders(Pageable pageable) {
-        return orderRepository.findAll(pageable);
+    public List<OrderResponseDTO> getAll(Pageable pageable) {
+        Page<Order> page = orderRepository.findAll(pageable);
+        return page.getContent().stream().map(OrderResponseDTO::new).collect(Collectors.toList());
     }
 
-    public Order getOrderById(Long id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Orden", "id", id));
-    }
-
-    @Transactional
-    public Order createOrder(Order order) {
-        // Establecer la relación bidireccional entre Order y OrderItems
-        if (order.getItems() != null) {
-            order.getItems().forEach(item -> {
-                item.setOrder(order);
-                // Calcular el subtotal si no está calculado
-                if (item.getSubtotal() == 0) {
-                    item.setSubtotal(item.getPrecio() * item.getCantidad());
-                }
-            });
-        }
-
-        // Calcular el total si no está calculado
-        if (order.getTotal() == 0) {
-            calculateOrderTotal(order);
-        }
-
-        return orderRepository.save(order);
-    }
-
-    private void calculateOrderTotal(Order order) {
-        double total = 0;
-        if (order.getItems() != null) {
-            for (OrderItem item : order.getItems()) {
-                total += item.getSubtotal();
-            }
-        }
-        order.setTotal(total);
+    public OrderResponseDTO getById(Long id) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+        return new OrderResponseDTO(order);
     }
 
     @Transactional
-    public Order createSampleOrder(Long customerId) {
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente", "id", customerId));
-
+    public OrderResponseDTO create(OrderDTO orderDTO) {
+        User user = userRepository.findById(orderDTO.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", orderDTO.getUserId()));
         Order order = new Order();
-        order.setCustomer(customer);
-        order.setFecha(LocalDateTime.now());
-
-        List<OrderItem> items = new ArrayList<>();
-
-        Cafe cafe1 = cafeRepository.findById(1L)
-                .orElseThrow(() -> new ResourceNotFoundException("Café", "id", 1L));
-
-        OrderItem item1 = new OrderItem(cafe1, cafe1.getNombre(), cafe1.getPrecio(), 2);
-        item1.setOrder(order);
-        items.add(item1);
-
+        order.setUser(user);
+        order.setDate(LocalDateTime.now());
+        List<OrderItem> items = orderDTO.getItems().stream().map(itemDTO -> {
+            Cafe cafe = cafeRepository.findById(itemDTO.getCafeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cafe", "id", itemDTO.getCafeId()));
+            OrderItem item = new OrderItem(cafe, cafe.getName(), cafe.getPrice(), itemDTO.getQuantity());
+            item.setOrder(order);
+            return item;
+        }).collect(Collectors.toList());
         order.setItems(items);
-        calculateOrderTotal(order);
-
-        return orderRepository.save(order);
+        double total = items.stream().mapToDouble(OrderItem::getSubtotal).sum();
+        order.setTotal(total);
+        Order saved = orderRepository.save(order);
+        return new OrderResponseDTO(saved);
     }
 
     @Transactional
-    public void deleteOrder(Long id) {
-        Order order = getOrderById(id);
+    public OrderResponseDTO update(Long id, OrderDTO orderDTO) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+        User user = userRepository.findById(orderDTO.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", orderDTO.getUserId()));
+        order.setUser(user);
+        List<OrderItem> items = orderDTO.getItems().stream().map(itemDTO -> {
+            Cafe cafe = cafeRepository.findById(itemDTO.getCafeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cafe", "id", itemDTO.getCafeId()));
+            OrderItem item = new OrderItem(cafe, cafe.getName(), cafe.getPrice(), itemDTO.getQuantity());
+            item.setOrder(order);
+            return item;
+        }).collect(Collectors.toList());
+        order.setItems(items);
+        double total = items.stream().mapToDouble(OrderItem::getSubtotal).sum();
+        order.setTotal(total);
+        Order updated = orderRepository.save(order);
+        return new OrderResponseDTO(updated);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
         orderRepository.delete(order);
     }
 
-    public List<Order> getOrdersByCustomerId(Long customerId) {
-        return orderRepository.findByCustomerId(customerId);
-    }
 }

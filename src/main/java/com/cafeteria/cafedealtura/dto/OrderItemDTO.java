@@ -4,12 +4,12 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public class OrderItemDTO {
-    @NotNull(message = "El ID del café es obligatorio")
+    @NotNull(message = "Cafe ID is required")
     private Long cafeId;
-    private String nombre; // (opcional, se puede usar el nombre del café existente)
-    private double precio; // (opcional, se puede usar el precio del café existente)
-    @Min(value = 1, message = "La cantidad debe ser mayor o igual a 1")
-    private int cantidad;
+    private String name; // Optional, can use cafe name
+    private double price; // Optional, can use cafe price
+    @Min(value = 1, message = "Quantity must be at least 1")
+    private int quantity;
 
     public OrderItemDTO() {
     }
@@ -22,27 +22,27 @@ public class OrderItemDTO {
         this.cafeId = cafeId;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getName() {
+        return name;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public double getPrecio() {
-        return precio;
+    public double getPrice() {
+        return price;
     }
 
-    public void setPrecio(double precio) {
-        this.precio = precio;
+    public void setPrice(double price) {
+        this.price = price;
     }
 
-    public int getCantidad() {
-        return cantidad;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

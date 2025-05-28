@@ -9,22 +9,22 @@ import com.cafeteria.cafedealtura.model.OrderItem;
 
 public class OrderResponseDTO {
     private Long id;
-    private CustomerDTO customer;
-    private LocalDateTime fecha;
+    private UserSummaryDTO user;
     private List<OrderItemResponseDTO> items;
     private double total;
+    private LocalDateTime date;
 
     public OrderResponseDTO() {
     }
 
     public OrderResponseDTO(Order order) {
         this.id = order.getId();
-        this.customer = new CustomerDTO(order.getCustomer());
-        this.fecha = order.getFecha();
+        this.user = new UserSummaryDTO(order.getUser());
         this.items = order.getItems().stream()
                 .map(OrderItemResponseDTO::new)
                 .collect(Collectors.toList());
         this.total = order.getTotal();
+        this.date = order.getDate();
     }
 
     // Getters y Setters
@@ -36,20 +36,12 @@ public class OrderResponseDTO {
         this.id = id;
     }
 
-    public CustomerDTO getCustomer() {
-        return customer;
+    public UserSummaryDTO getUser() {
+        return user;
     }
 
-    public void setCustomer(CustomerDTO customer) {
-        this.customer = customer;
-    }
-
-    public LocalDateTime getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(LocalDateTime fecha) {
-        this.fecha = fecha;
+    public void setUser(UserSummaryDTO user) {
+        this.user = user;
     }
 
     public List<OrderItemResponseDTO> getItems() {
@@ -68,17 +60,25 @@ public class OrderResponseDTO {
         this.total = total;
     }
 
-    // Clase interna para Customer
-    public static class CustomerDTO {
-        private Long id;
-        private String nombre;
+    public LocalDateTime getDate() {
+        return date;
+    }
 
-        public CustomerDTO() {
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
+    // Clase interna para User
+    public static class UserSummaryDTO {
+        private Long id;
+        private String name;
+
+        public UserSummaryDTO() {
         }
 
-        public CustomerDTO(com.cafeteria.cafedealtura.model.Customer customer) {
-            this.id = customer.getId();
-            this.nombre = customer.getNombre();
+        public UserSummaryDTO(com.cafeteria.cafedealtura.model.User user) {
+            this.id = user.getId();
+            this.name = user.getName();
         }
 
         public Long getId() {
@@ -89,21 +89,21 @@ public class OrderResponseDTO {
             this.id = id;
         }
 
-        public String getNombre() {
-            return nombre;
+        public String getName() {
+            return name;
         }
 
-        public void setNombre(String nombre) {
-            this.nombre = nombre;
+        public void setName(String name) {
+            this.name = name;
         }
     }
 
     // Clase interna para OrderItem
     public static class OrderItemResponseDTO {
         private Long id;
-        private String nombre;
-        private double precio;
-        private int cantidad;
+        private String name;
+        private double price;
+        private int quantity;
         private double subtotal;
 
         public OrderItemResponseDTO() {
@@ -111,9 +111,9 @@ public class OrderResponseDTO {
 
         public OrderItemResponseDTO(OrderItem item) {
             this.id = item.getId();
-            this.nombre = item.getNombre();
-            this.precio = item.getPrecio();
-            this.cantidad = item.getCantidad();
+            this.name = item.getName();
+            this.price = item.getPrice();
+            this.quantity = item.getQuantity();
             this.subtotal = item.getSubtotal();
         }
 
@@ -125,28 +125,28 @@ public class OrderResponseDTO {
             this.id = id;
         }
 
-        public String getNombre() {
-            return nombre;
+        public String getName() {
+            return name;
         }
 
-        public void setNombre(String nombre) {
-            this.nombre = nombre;
+        public void setName(String name) {
+            this.name = name;
         }
 
-        public double getPrecio() {
-            return precio;
+        public double getPrice() {
+            return price;
         }
 
-        public void setPrecio(double precio) {
-            this.precio = precio;
+        public void setPrice(double price) {
+            this.price = price;
         }
 
-        public int getCantidad() {
-            return cantidad;
+        public int getQuantity() {
+            return quantity;
         }
 
-        public void setCantidad(int cantidad) {
-            this.cantidad = cantidad;
+        public void setQuantity(int quantity) {
+            this.quantity = quantity;
         }
 
         public double getSubtotal() {

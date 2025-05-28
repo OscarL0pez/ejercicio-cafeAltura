@@ -49,18 +49,18 @@ public class OrderItem {
      * Nombre del café en el momento de la compra.
      * Se guarda una copia para mantener el histórico.
      */
-    private String nombre;
+    private String name;
 
     /**
      * Precio unitario del café en el momento de la compra.
      * Se guarda una copia para mantener el histórico.
      */
-    private double precio;
+    private double price;
 
     /**
      * Cantidad de unidades del café en este item.
      */
-    private int cantidad;
+    private int quantity;
 
     /**
      * Subtotal del item (precio * cantidad).
@@ -71,12 +71,12 @@ public class OrderItem {
     public OrderItem() {
     }
 
-    public OrderItem(Cafe cafe, String nombre, double precio, int cantidad) {
+    public OrderItem(Cafe cafe, String name, double price, int quantity) {
         this.cafe = cafe;
-        this.nombre = nombre;
-        this.precio = precio;
-        this.cantidad = cantidad;
-        this.subtotal = precio * cantidad;
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+        this.subtotal = price * quantity;
     }
 
     public Long getId() {
@@ -103,28 +103,28 @@ public class OrderItem {
         this.cafe = cafe;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getName() {
+        return name;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public double getPrecio() {
-        return precio;
+    public double getPrice() {
+        return price;
     }
 
-    public void setPrecio(double precio) {
-        this.precio = precio;
+    public void setPrice(double price) {
+        this.price = price;
     }
 
-    public int getCantidad() {
-        return cantidad;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public double getSubtotal() {

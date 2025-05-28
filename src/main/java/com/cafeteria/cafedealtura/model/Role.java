@@ -1,28 +1,21 @@
 package com.cafeteria.cafedealtura.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "roles")
 public class Role {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private RoleType name;
+    @Column(nullable = false, unique = true)
+    private String name;
 
     public Role() {
     }
 
-    public Role(RoleType name) {
+    public Role(String name) {
         this.name = name;
     }
 
@@ -34,17 +27,11 @@ public class Role {
         this.id = id;
     }
 
-    public RoleType getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(RoleType name) {
+    public void setName(String name) {
         this.name = name;
-    }
-
-    public enum RoleType {
-        ROLE_ADMIN, // Acceso total
-        ROLE_CUSTOMER, // Solo solicitar pedidos
-        ROLE_USER // Acceso a pedidos
     }
 }

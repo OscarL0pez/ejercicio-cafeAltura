@@ -9,5 +9,5 @@ import com.cafeteria.cafedealtura.model.Order;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    List<Order> findByCustomerId(Long customerId);
+    List<Order> findByUserId(Long userId);
 }

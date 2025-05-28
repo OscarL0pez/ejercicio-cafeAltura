@@ -1,67 +1,30 @@
-package com.cafeteria.cafedealtura.model;
+package com.cafeteria.cafedealtura.dto;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-/**
- * Entidad que representa un café en el sistema.
- * Esta clase mapea la tabla 'cafes' en la base de datos.
- * 
- * Características principales:
- * - ID autoincremental
- * - Validaciones de campos obligatorios
- * - Precio debe ser positivo
- */
-@Entity
-@Table(name = "cafes")
-public class Cafe {
-    /**
-     * Identificador único del café.
-     * Se genera automáticamente al crear un nuevo registro.
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class CafeDTO {
+
     private Long id;
 
-    /**
-     * Nombre del café.
-     * No puede estar vacío.
-     */
     @NotBlank(message = "El nombre es obligatorio")
     private String name;
 
-    /**
-     * Descripción detallada del café.
-     * No puede estar vacía.
-     */
     @NotBlank(message = "La descripción es obligatoria")
     private String description;
 
-    /**
-     * Precio del café.
-     * Debe ser un valor positivo mayor que cero.
-     */
     @NotNull(message = "El precio es obligatorio")
     @Positive(message = "El precio debe ser mayor que 0")
-    private double price;
+    private Double price;
 
-    /**
-     * País o región de origen del café.
-     * No puede estar vacío.
-     */
     @NotBlank(message = "El origen es obligatorio")
     private String origin;
 
-    public Cafe() {
+    public CafeDTO() {
     }
 
-    public Cafe(Long id, String name, String description, double price, String origin) {
+    public CafeDTO(Long id, String name, String description, Double price, String origin) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -93,11 +56,11 @@ public class Cafe {
         this.description = description;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
@@ -108,4 +71,5 @@ public class Cafe {
     public void setOrigin(String origin) {
         this.origin = origin;
     }
+
 }

@@ -1,0 +1,46 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f3e9;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 400px;
+  margin: 60px auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 32px;
+}
+h1, h2 {
+  text-align: center;
+  color: #6b4f27;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+input, button {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+button {
+  background: #6b4f27;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+button:hover {
+  background: #8d6e3f;
+}
+#message {
+  margin-top: 10px;
+  color: #b94a48;
+  text-align: center;
+}
+#cafes {
+  margin-top: 24px;
+} 
