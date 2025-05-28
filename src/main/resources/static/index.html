@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Café de Altura - API Paginada</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            margin-bottom: 1rem;
+        }
+        .pagination-info {
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 0.25rem;
+        }
+        .nav-tabs {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Café de Altura - API Paginada</h1>
+        
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="cafes-tab" data-bs-toggle="tab" data-bs-target="#cafes" type="button" role="tab">Cafés</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button" role="tab">Clientes</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pedidos-tab" data-bs-toggle="tab" data-bs-target="#pedidos" type="button" role="tab">Pedidos</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <!-- Cafés -->
+            <div class="tab-pane fade show active" id="cafes" role="tabpanel">
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="cafePageSize" class="form-label">Elementos por página:</label>
+                        <select class="form-select" id="cafePageSize" onchange="loadCafes(0)">
+                            <option value="2">2</option>
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="cafesContent"></div>
+                <div id="cafesPagination" class="pagination-info"></div>
+                <nav aria-label="Navegación de cafés">
+                    <ul class="pagination" id="cafesPaginationButtons"></ul>
+                </nav>
+            </div>
+
+            <!-- Clientes -->
+            <div class="tab-pane fade" id="clientes" role="tabpanel">
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="clientePageSize" class="form-label">Elementos por página:</label>
+                        <select class="form-select" id="clientePageSize" onchange="loadClientes(0)">
+                            <option value="2">2</option>
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="clientesContent"></div>
+                <div id="clientesPagination" class="pagination-info"></div>
+                <nav aria-label="Navegación de clientes">
+                    <ul class="pagination" id="clientesPaginationButtons"></ul>
+                </nav>
+            </div>
+
+            <!-- Pedidos -->
+            <div class="tab-pane fade" id="pedidos" role="tabpanel">
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="pedidoPageSize" class="form-label">Elementos por página:</label>
+                        <select class="form-select" id="pedidoPageSize" onchange="loadPedidos(0)">
+                            <option value="2">2</option>
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="pedidosContent"></div>
+                <div id="pedidosPagination" class="pagination-info"></div>
+                <nav aria-label="Navegación de pedidos">
+                    <ul class="pagination" id="pedidosPaginationButtons"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Funciones de utilidad
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString();
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
+        }
+
+        // Función para crear los botones de paginación
+        function createPaginationButtons(currentPage, totalPages, elementId, callback) {
+            const pagination = document.getElementById(elementId);
+            pagination.innerHTML = '';
+
+            // Botón Anterior
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 0 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<button class="page-link" onclick="${callback}(${currentPage - 1})">Anterior</button>`;
+            pagination.appendChild(prevLi);
+
+            // Botones de página
+            for (let i = 0; i < totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                li.innerHTML = `<button class="page-link" onclick="${callback}(${i})">${i + 1}</button>`;
+                pagination.appendChild(li);
+            }
+
+            // Botón Siguiente
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<button class="page-link" onclick="${callback}(${currentPage + 1})">Siguiente</button>`;
+            pagination.appendChild(nextLi);
+        }
+
+        // Función para mostrar la información de paginación
+        function showPaginationInfo(data, elementId) {
+            const info = document.getElementById(elementId);
+            info.innerHTML = `
+                Página ${data.currentPage + 1} de ${data.totalPages} | 
+                Total de elementos: ${data.totalElements} | 
+                Elementos por página: ${data.pageSize}
+            `;
+        }
+
+        // Cargar Cafés
+        async function loadCafes(page) {
+            const pageSize = document.getElementById('cafePageSize').value;
+            const response = await fetch(`/api/cafes?page=${page}&size=${pageSize}`);
+            const data = await response.json();
+
+            const content = document.getElementById('cafesContent');
+            content.innerHTML = data.content.map(cafe => `
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">${cafe.nombre}</h5>
+                        <p class="card-text">${cafe.descripcion}</p>
+                        <p class="card-text">
+                            <strong>Origen:</strong> ${cafe.origen}<br>
+                            <strong>Precio:</strong> ${formatCurrency(cafe.precio)}
+                        </p>
+                    </div>
+                </div>
+            `).join('');
+
+            showPaginationInfo(data, 'cafesPagination');
+            createPaginationButtons(data.currentPage, data.totalPages, 'cafesPaginationButtons', 'loadCafes');
+        }
+
+        // Cargar Clientes
+        async function loadClientes(page) {
+            const pageSize = document.getElementById('clientePageSize').value;
+            const response = await fetch(`/api/customers?page=${page}&size=${pageSize}`);
+            const data = await response.json();
+
+            const content = document.getElementById('clientesContent');
+            content.innerHTML = data.content.map(cliente => `
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">${cliente.nombre}</h5>
+                        <p class="card-text">ID: ${cliente.id}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            showPaginationInfo(data, 'clientesPagination');
+            createPaginationButtons(data.currentPage, data.totalPages, 'clientesPaginationButtons', 'loadClientes');
+        }
+
+        // Cargar Pedidos
+        async function loadPedidos(page) {
+            const pageSize = document.getElementById('pedidoPageSize').value;
+            const response = await fetch(`/api/orders?page=${page}&size=${pageSize}`);
+            const data = await response.json();
+
+            const content = document.getElementById('pedidosContent');
+            content.innerHTML = data.content.map(pedido => `
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Pedido #${pedido.id}</h5>
+                        <p class="card-text">
+                            <strong>Cliente:</strong> ${pedido.customer.nombre}<br>
+                            <strong>Fecha:</strong> ${formatDate(pedido.fecha)}<br>
+                            <strong>Total:</strong> ${formatCurrency(pedido.total)}
+                        </p>
+                        <h6>Items:</h6>
+                        <ul class="list-group list-group-flush">
+                            ${pedido.items.map(item => `
+                                <li class="list-group-item">
+                                    ${item.nombre} - ${item.cantidad} x ${formatCurrency(item.precio)} = ${formatCurrency(item.subtotal)}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `).join('');
+
+            showPaginationInfo(data, 'pedidosPagination');
+            createPaginationButtons(data.currentPage, data.totalPages, 'pedidosPaginationButtons', 'loadPedidos');
+        }
+
+        // Cargar datos iniciales
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCafes(0);
+            loadClientes(0);
+            loadPedidos(0);
+        });
+    </script>
+</body>
+</html> 

@@ -3,6 +3,8 @@ package com.cafeteria.cafedealtura.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +14,7 @@ import com.cafeteria.cafedealtura.model.Customer;
 import com.cafeteria.cafedealtura.service.OrderService;
 import com.cafeteria.cafedealtura.service.CustomerService;
 import com.cafeteria.cafedealtura.exception.ResourceNotFoundException;
+import com.cafeteria.cafedealtura.dto.PaginatedResponse;
 
 import jakarta.validation.Valid;
 
@@ -73,14 +76,15 @@ public class OrderController {
     }
 
     /**
-     * Obtiene todos los pedidos del sistema.
+     * Obtiene todos los pedidos con paginación.
      * 
-     * @return Lista de todos los pedidos con estado 200 OK
+     * @param pageable Parámetros de paginación (page, size)
+     * @return Lista paginada de pedidos con metadatos
      */
     @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders() {
-        List<Order> orders = orderService.getAllOrders();
-        return ResponseEntity.ok(orders);
+    public ResponseEntity<PaginatedResponse<Order>> getAllOrders(
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(new PaginatedResponse<>(orderService.getAllOrders(pageable)));
     }
 
     /**

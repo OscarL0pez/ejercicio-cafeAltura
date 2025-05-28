@@ -3,6 +3,8 @@ package com.cafeteria.cafedealtura.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.cafeteria.cafedealtura.model.Cafe;
@@ -17,20 +19,28 @@ public class CafeService {
         this.cafeRepository = cafeRepository;
     }
 
-    public List<Cafe> obtenerTodos() {
-        return cafeRepository.findAll();
+    public Page<Cafe> obtenerTodos(Pageable pageable) {
+        return cafeRepository.findAll(pageable);
     }
 
-    public Optional<Cafe> obtenerPorId(Long id) {
+    public Optional<Cafe> findById(Long id) {
         return cafeRepository.findById(id);
+    }
+
+    public Cafe save(Cafe cafe) {
+        return cafeRepository.save(cafe);
+    }
+
+    public boolean existsById(Long id) {
+        return cafeRepository.existsById(id);
+    }
+
+    public void deleteById(Long id) {
+        cafeRepository.deleteById(id);
     }
 
     public Cafe crear(Cafe cafe) {
         return cafeRepository.save(cafe);
-    }
-
-    public boolean existePorId(Long id) {
-        return cafeRepository.existsById(id);
     }
 
     public Cafe reemplazar(Long id, Cafe nuevoCafe) {

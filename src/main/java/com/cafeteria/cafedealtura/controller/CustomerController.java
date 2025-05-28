@@ -2,11 +2,14 @@ package com.cafeteria.cafedealtura.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.cafeteria.cafedealtura.model.Customer;
 import com.cafeteria.cafedealtura.service.CustomerService;
+import com.cafeteria.cafedealtura.dto.PaginatedResponse;
 
 import jakarta.validation.Valid;
 
@@ -73,14 +76,15 @@ public class CustomerController {
     }
 
     /**
-     * Obtiene todos los clientes del sistema.
+     * Obtiene todos los clientes con paginación.
      * 
-     * @return Lista de todos los clientes con estado 200 OK
+     * @param pageable Parámetros de paginación (page, size)
+     * @return Lista paginada de clientes con metadatos
      */
     @GetMapping
-    public ResponseEntity<List<Customer>> getAllCustomers() {
-        List<Customer> customers = customerService.getAllCustomers();
-        return ResponseEntity.ok(customers);
+    public ResponseEntity<PaginatedResponse<Customer>> getAllCustomers(
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(new PaginatedResponse<>(customerService.getAllCustomers(pageable)));
     }
 
     /**

@@ -2,6 +2,8 @@ package com.cafeteria.cafedealtura.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import com.cafeteria.cafedealtura.model.Cafe;
 import com.cafeteria.cafedealtura.repository.CafeRepository;
 import com.cafeteria.cafedealtura.dto.CafeUpdateDTO;
+import com.cafeteria.cafedealtura.dto.PaginatedResponse;
+import com.cafeteria.cafedealtura.service.CafeService;
 
 import jakarta.validation.Valid;
 
@@ -28,21 +32,22 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/cafes")
 public class CafeController {
 
-    private final CafeRepository cafeRepository;
+    private final CafeService cafeService;
 
-    public CafeController(CafeRepository cafeRepository) {
-        this.cafeRepository = cafeRepository;
+    public CafeController(CafeService cafeService) {
+        this.cafeService = cafeService;
     }
 
     /**
-     * Obtiene todos los cafés disponibles.
+     * Obtiene todos los cafés disponibles con paginación.
      * 
-     * @return Lista de todos los cafés con estado 200 OK
+     * @param pageable Parámetros de paginación (page, size)
+     * @return Lista paginada de cafés con metadatos
      */
     @GetMapping
-    public ResponseEntity<List<Cafe>> getAllCafes() {
-        List<Cafe> cafes = cafeRepository.findAll();
-        return ResponseEntity.ok(cafes);
+    public ResponseEntity<PaginatedResponse<Cafe>> getAllCafes(
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(new PaginatedResponse<>(cafeService.obtenerTodos(pageable)));
     }
 
     /**
@@ -53,7 +58,7 @@ public class CafeController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<Cafe> getCafeById(@PathVariable Long id) {
-        return cafeRepository.findById(id)
+        return cafeService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -66,7 +71,7 @@ public class CafeController {
      */
     @PostMapping
     public ResponseEntity<Cafe> createCafe(@Valid @RequestBody Cafe cafe) {
-        Cafe savedCafe = cafeRepository.save(cafe);
+        Cafe savedCafe = cafeService.save(cafe);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCafe);
     }
 
@@ -79,11 +84,11 @@ public class CafeController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<Cafe> updateCafe(@PathVariable Long id, @Valid @RequestBody Cafe cafe) {
-        if (!cafeRepository.existsById(id)) {
+        if (!cafeService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
         cafe.setId(id);
-        Cafe updatedCafe = cafeRepository.save(cafe);
+        Cafe updatedCafe = cafeService.save(cafe);
         return ResponseEntity.ok(updatedCafe);
     }
 
@@ -96,10 +101,10 @@ public class CafeController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCafe(@PathVariable Long id) {
-        if (!cafeRepository.existsById(id)) {
+        if (!cafeService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        cafeRepository.deleteById(id);
+        cafeService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -115,7 +120,7 @@ public class CafeController {
     public ResponseEntity<Cafe> partialUpdateCafe(
             @PathVariable Long id,
             @Valid @RequestBody CafeUpdateDTO cafeUpdate) {
-        return cafeRepository.findById(id)
+        return cafeService.findById(id)
                 .map(existingCafe -> {
                     // Actualizar solo los campos que no son null
                     if (cafeUpdate.getNombre() != null) {
@@ -131,7 +136,7 @@ public class CafeController {
                         existingCafe.setOrigen(cafeUpdate.getOrigen());
                     }
 
-                    Cafe updatedCafe = cafeRepository.save(existingCafe);
+                    Cafe updatedCafe = cafeService.save(existingCafe);
                     return ResponseEntity.ok(updatedCafe);
                 })
                 .orElse(ResponseEntity.notFound().build());

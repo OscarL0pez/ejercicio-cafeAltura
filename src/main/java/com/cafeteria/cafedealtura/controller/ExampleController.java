@@ -2,6 +2,8 @@ package com.cafeteria.cafedealtura.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +11,7 @@ import com.cafeteria.cafedealtura.model.Customer;
 import com.cafeteria.cafedealtura.model.Order;
 import com.cafeteria.cafedealtura.service.CustomerService;
 import com.cafeteria.cafedealtura.service.OrderService;
+import com.cafeteria.cafedealtura.dto.PaginatedResponse;
 
 import jakarta.validation.Valid;
 
@@ -60,10 +63,16 @@ public class ExampleController {
         return ResponseEntity.ok(savedCustomer);
     }
 
+    /**
+     * Obtiene todos los clientes con paginación.
+     * 
+     * @param pageable Parámetros de paginación (page, size)
+     * @return Lista paginada de clientes con metadatos
+     */
     @GetMapping("/customers")
-    public ResponseEntity<List<Customer>> getAllCustomers() {
-        List<Customer> customers = customerService.getAllCustomers();
-        return ResponseEntity.ok(customers);
+    public ResponseEntity<PaginatedResponse<Customer>> getAllCustomers(
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(new PaginatedResponse<>(customerService.getAllCustomers(pageable)));
     }
 
     @GetMapping("/customers/{id}")
@@ -92,9 +101,15 @@ public class ExampleController {
         return ResponseEntity.ok(order);
     }
 
+    /**
+     * Obtiene todos los pedidos con paginación.
+     * 
+     * @param pageable Parámetros de paginación (page, size)
+     * @return Lista paginada de pedidos con metadatos
+     */
     @GetMapping("/orders")
-    public ResponseEntity<List<Order>> getAllOrders() {
-        List<Order> orders = orderService.getAllOrders();
-        return ResponseEntity.ok(orders);
+    public ResponseEntity<PaginatedResponse<Order>> getAllOrders(
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(new PaginatedResponse<>(orderService.getAllOrders(pageable)));
     }
 }
