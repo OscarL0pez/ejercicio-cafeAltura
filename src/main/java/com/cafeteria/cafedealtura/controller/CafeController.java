@@ -18,15 +18,31 @@ import jakarta.validation.Valid;
 
 /**
  * Controlador REST para la gestión de cafés.
- * Proporciona endpoints para realizar operaciones CRUD sobre los cafés.
+ * Proporciona endpoints para realizar operaciones CRUD sobre los cafés,
+ * incluyendo soporte para paginación en los endpoints de listado.
  * 
  * Endpoints disponibles:
- * - GET /api/cafes - Listar todos los cafés
+ * - GET /api/cafes - Listar todos los cafés (paginado)
+ * Parámetros de paginación:
+ * - page: número de página (0-based, default: 0)
+ * - size: tamaño de página (default: 10)
+ * Ejemplo: GET /api/cafes?page=0&size=5
+ * 
  * - GET /api/cafes/{id} - Obtener un café por ID
  * - POST /api/cafes - Crear un nuevo café
  * - PUT /api/cafes/{id} - Actualizar un café completo
  * - PATCH /api/cafes/{id} - Actualizar parcialmente un café
  * - DELETE /api/cafes/{id} - Eliminar un café
+ * 
+ * Todas las respuestas de listado (GET /api/cafes) incluyen metadatos de
+ * paginación:
+ * - content: Lista de cafés en la página actual
+ * - currentPage: Número de página actual
+ * - totalPages: Total de páginas disponibles
+ * - totalElements: Total de cafés
+ * - pageSize: Tamaño de página
+ * - hasNext: Indica si hay página siguiente
+ * - hasPrevious: Indica si hay página anterior
  */
 @RestController
 @RequestMapping("/api/cafes")
@@ -42,7 +58,25 @@ public class CafeController {
      * Obtiene todos los cafés disponibles con paginación.
      * 
      * @param pageable Parámetros de paginación (page, size)
-     * @return Lista paginada de cafés con metadatos
+     *                 - page: número de página (0-based, default: 0)
+     *                 - size: tamaño de página (default: 10)
+     * @return ResponseEntity con PaginatedResponse que contiene:
+     *         - Lista de cafés en la página actual
+     *         - Metadatos de paginación (currentPage, totalPages, etc.)
+     * 
+     *         Ejemplo de uso:
+     *         GET /api/cafes?page=0&size=5
+     * 
+     *         Ejemplo de respuesta:
+     *         {
+     *         "content": [...],
+     *         "currentPage": 0,
+     *         "totalPages": 3,
+     *         "totalElements": 12,
+     *         "pageSize": 5,
+     *         "hasNext": true,
+     *         "hasPrevious": false
+     *         }
      */
     @GetMapping
     public ResponseEntity<PaginatedResponse<Cafe>> getAllCafes(

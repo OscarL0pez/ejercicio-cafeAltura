@@ -233,3 +233,109 @@ Puedes probar los endpoints usando Postman o cualquier cliente HTTP. Ejemplos de
 - Las órdenes se crean con IDs autoincrementales
 - Los totales se calculan automáticamente
 - La fecha de las órdenes se establece automáticamente al momento de la creación
+
+## Características
+
+- Gestión de cafés, clientes y pedidos
+- Paginación en todos los endpoints de listado
+- Validación de datos
+- Manejo de errores global
+- Documentación de API con Swagger/OpenAPI
+- Interfaz web para visualización de datos
+
+## Endpoints
+
+### Cafés
+- `GET /api/cafes` - Listar todos los cafés (paginado)
+  - Parámetros: `page` (número de página, 0-based), `size` (tamaño de página)
+  - Ejemplo: `GET /api/cafes?page=0&size=10`
+- `GET /api/cafes/{id}` - Obtener un café por ID
+- `POST /api/cafes` - Crear un nuevo café
+- `PUT /api/cafes/{id}` - Actualizar un café
+- `DELETE /api/cafes/{id}` - Eliminar un café
+
+### Clientes
+- `GET /api/customers` - Listar todos los clientes (paginado)
+  - Parámetros: `page` (número de página, 0-based), `size` (tamaño de página)
+  - Ejemplo: `GET /api/customers?page=0&size=10`
+- `GET /api/customers/{id}` - Obtener un cliente por ID
+- `POST /api/customers` - Crear un nuevo cliente
+- `PUT /api/customers/{id}` - Actualizar un cliente
+- `DELETE /api/customers/{id}` - Eliminar un cliente
+
+### Pedidos
+- `GET /api/orders` - Listar todos los pedidos (paginado)
+  - Parámetros: `page` (número de página, 0-based), `size` (tamaño de página)
+  - Ejemplo: `GET /api/orders?page=0&size=10`
+- `GET /api/orders/{id}` - Obtener un pedido por ID
+- `GET /api/orders/customer/{customerId}` - Obtener pedidos por cliente
+- `POST /api/orders/{customerId}` - Crear un nuevo pedido
+- `DELETE /api/orders/{id}` - Eliminar un pedido
+
+## Paginación
+
+Todos los endpoints de listado (`GET /api/cafes`, `GET /api/customers`, `GET /api/orders`) soportan paginación. La respuesta incluye:
+
+- `content`: Lista de elementos en la página actual
+- `currentPage`: Número de página actual (0-based)
+- `totalPages`: Número total de páginas
+- `totalElements`: Número total de elementos
+- `pageSize`: Tamaño de cada página
+- `hasNext`: Indica si hay una página siguiente
+- `hasPrevious`: Indica si hay una página anterior
+
+Ejemplo de respuesta paginada:
+```json
+{
+    "content": [...],
+    "currentPage": 0,
+    "totalPages": 5,
+    "totalElements": 42,
+    "pageSize": 10,
+    "hasNext": true,
+    "hasPrevious": false
+}
+```
+
+## Interfaz Web
+
+La aplicación incluye una interfaz web para visualizar los datos de forma paginada. Accede a través de:
+- `http://localhost:8080` - Interfaz principal
+- `http://localhost:8080/api/cafes` - API de cafés
+- `http://localhost:8080/api/customers` - API de clientes
+- `http://localhost:8080/api/orders` - API de pedidos
+
+## Tecnologías
+
+- Java 17
+- Spring Boot 3.x
+- Spring Data JPA
+- H2 Database (desarrollo)
+- MySQL (producción)
+- Maven
+- Bootstrap 5 (interfaz web)
+
+## Requisitos
+
+- Java 17 o superior
+- Maven 3.6 o superior
+- MySQL 8.0 (para producción)
+
+## Instalación
+
+1. Clonar el repositorio
+2. Configurar la base de datos en `application.properties`
+3. Ejecutar `./mvnw spring-boot:run`
+4. Acceder a `http://localhost:8080`
+
+## Desarrollo
+
+Para ejecutar en modo desarrollo:
+```bash
+./mvnw spring-boot:run
+```
+
+Para ejecutar los tests:
+```bash
+./mvnw test
+```

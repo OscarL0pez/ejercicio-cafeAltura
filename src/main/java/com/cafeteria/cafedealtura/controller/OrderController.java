@@ -20,14 +20,30 @@ import jakarta.validation.Valid;
 
 /**
  * Controlador REST para la gestión de pedidos.
- * Proporciona endpoints para crear, consultar y eliminar pedidos.
+ * Proporciona endpoints para crear, consultar y eliminar pedidos,
+ * incluyendo soporte para paginación en los endpoints de listado.
  * 
  * Endpoints disponibles:
- * - POST /api/orders/{customerId} - Crear un nuevo pedido para un cliente
- * - GET /api/orders - Listar todos los pedidos
+ * - GET /api/orders - Listar todos los pedidos (paginado)
+ * Parámetros de paginación:
+ * - page: número de página (0-based, default: 0)
+ * - size: tamaño de página (default: 10)
+ * Ejemplo: GET /api/orders?page=0&size=5
+ * 
  * - GET /api/orders/{id} - Obtener un pedido por ID
  * - GET /api/orders/customer/{customerId} - Obtener pedidos por cliente
+ * - POST /api/orders/{customerId} - Crear un nuevo pedido
  * - DELETE /api/orders/{id} - Eliminar un pedido
+ * 
+ * Todas las respuestas de listado (GET /api/orders) incluyen metadatos de
+ * paginación:
+ * - content: Lista de pedidos en la página actual
+ * - currentPage: Número de página actual
+ * - totalPages: Total de páginas disponibles
+ * - totalElements: Total de pedidos
+ * - pageSize: Tamaño de página
+ * - hasNext: Indica si hay página siguiente
+ * - hasPrevious: Indica si hay página anterior
  */
 @RestController
 @RequestMapping("/api/orders")
@@ -79,7 +95,25 @@ public class OrderController {
      * Obtiene todos los pedidos con paginación.
      * 
      * @param pageable Parámetros de paginación (page, size)
-     * @return Lista paginada de pedidos con metadatos
+     *                 - page: número de página (0-based, default: 0)
+     *                 - size: tamaño de página (default: 10)
+     * @return ResponseEntity con PaginatedResponse que contiene:
+     *         - Lista de pedidos en la página actual
+     *         - Metadatos de paginación (currentPage, totalPages, etc.)
+     * 
+     *         Ejemplo de uso:
+     *         GET /api/orders?page=0&size=5
+     * 
+     *         Ejemplo de respuesta:
+     *         {
+     *         "content": [...],
+     *         "currentPage": 0,
+     *         "totalPages": 3,
+     *         "totalElements": 12,
+     *         "pageSize": 5,
+     *         "hasNext": true,
+     *         "hasPrevious": false
+     *         }
      */
     @GetMapping
     public ResponseEntity<PaginatedResponse<Order>> getAllOrders(

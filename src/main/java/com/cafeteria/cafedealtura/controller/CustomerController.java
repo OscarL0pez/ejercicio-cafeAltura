@@ -15,14 +15,30 @@ import jakarta.validation.Valid;
 
 /**
  * Controlador REST para la gestión de clientes.
- * Proporciona endpoints para realizar operaciones CRUD sobre los clientes.
+ * Proporciona endpoints para realizar operaciones CRUD sobre los clientes,
+ * incluyendo soporte para paginación en los endpoints de listado.
  * 
  * Endpoints disponibles:
- * - POST /api/customers - Crear un nuevo cliente
- * - GET /api/customers - Listar todos los clientes
+ * - GET /api/customers - Listar todos los clientes (paginado)
+ * Parámetros de paginación:
+ * - page: número de página (0-based, default: 0)
+ * - size: tamaño de página (default: 10)
+ * Ejemplo: GET /api/customers?page=0&size=5
+ * 
  * - GET /api/customers/{id} - Obtener un cliente por ID
+ * - POST /api/customers - Crear un nuevo cliente
  * - PUT /api/customers/{id} - Actualizar un cliente
  * - DELETE /api/customers/{id} - Eliminar un cliente
+ * 
+ * Todas las respuestas de listado (GET /api/customers) incluyen metadatos de
+ * paginación:
+ * - content: Lista de clientes en la página actual
+ * - currentPage: Número de página actual
+ * - totalPages: Total de páginas disponibles
+ * - totalElements: Total de clientes
+ * - pageSize: Tamaño de página
+ * - hasNext: Indica si hay página siguiente
+ * - hasPrevious: Indica si hay página anterior
  */
 @RestController
 @RequestMapping("/api/customers")
@@ -79,7 +95,25 @@ public class CustomerController {
      * Obtiene todos los clientes con paginación.
      * 
      * @param pageable Parámetros de paginación (page, size)
-     * @return Lista paginada de clientes con metadatos
+     *                 - page: número de página (0-based, default: 0)
+     *                 - size: tamaño de página (default: 10)
+     * @return ResponseEntity con PaginatedResponse que contiene:
+     *         - Lista de clientes en la página actual
+     *         - Metadatos de paginación (currentPage, totalPages, etc.)
+     * 
+     *         Ejemplo de uso:
+     *         GET /api/customers?page=0&size=5
+     * 
+     *         Ejemplo de respuesta:
+     *         {
+     *         "content": [...],
+     *         "currentPage": 0,
+     *         "totalPages": 3,
+     *         "totalElements": 12,
+     *         "pageSize": 5,
+     *         "hasNext": true,
+     *         "hasPrevious": false
+     *         }
      */
     @GetMapping
     public ResponseEntity<PaginatedResponse<Customer>> getAllCustomers(
