@@ -1,5 +1,6 @@
 package com.cafeteria.cafedealtura.repository;
 
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -7,5 +8,5 @@ import com.cafeteria.cafedealtura.model.Customer;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
-    // Métodos personalizados si los necesitas
+    Optional<Customer> findByEmail(String email);
 }
