@@ -1,19 +1,40 @@
 # ☕️ CafedeAltura
 
-¡Bienvenido a CafedeAltura!  
-Sistema de gestión de cafetería con autenticación JWT, CRUD de productos, pedidos y usuarios.
+¡Bienvenido a CafedeAltura!
+
+Sistema completo para la gestión de una cafetería, desarrollado con Java y Spring Boot. Incluye autenticación JWT, gestión de productos, pedidos y usuarios, así como panel de administración y documentación interactiva.
+
+---
+
+## ✨ Funcionalidades principales
+
+- **Autenticación y autorización JWT:**
+  Registro y login de usuarios con protección de endpoints mediante tokens JWT y roles (`USER`, `ADMIN`).
+- **Gestión de usuarios:**
+  Registro, login seguro y consulta de perfil y roles.
+- **Gestión de cafés:**
+  CRUD completo de productos de café. Solo los administradores pueden modificar o eliminar cafés.
+- **Gestión de pedidos:**
+  Creación, consulta, actualización y cancelación de pedidos según estado y permisos.
+- **Panel de administración:**
+  Acceso a estadísticas y gestión avanzada solo para usuarios con rol `ADMIN`.
+- **Documentación interactiva:**
+  Swagger UI para probar y explorar todos los endpoints de la API.
+- **Base de datos en memoria (H2):**
+  Visualización y gestión de datos en tiempo real desde la consola H2.
 
 ---
 
 ## 📋 Tabla de Contenidos
 
 - [Instalación](#-instalación)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Demo](#-demo)
 - [Uso](#-uso)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Tecnologías](#-tecnologías)
 - [Contribución](#-contribución)
 - [Contacto](#-contacto)
+- [Agradecimientos](#-agradecimientos)
 
 ---
 
@@ -24,40 +45,17 @@ Sistema de gestión de cafetería con autenticación JWT, CRUD de productos, ped
    git clone <URL-DEL-REPO>
    cd cafedealtura
    ```
-
 2. **Compila el proyecto:**
    ```bash
    mvn clean install
    ```
-
 3. **Ejecuta la aplicación:**
    ```bash
    mvn spring-boot:run
    ```
-
 4. **Accede a la app:**
    - Swagger UI: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
    - H2 Console: [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
-
----
-
-
-
-
-## 🧪 Uso
-
-- **Login de ejemplo:**
-  - Email: `admin@cafe.com`
-  - Contraseña: `Admin123` (recuerda la mayúscula)
-
-- **Probar la API:**
-  1. Ve a Swagger UI.
-  2. Usa `/api/auth/login` para obtener tu token JWT.
-  3. Haz clic en "Authorize" e ingresa:  
-     ```
-     Bearer <tu_token>
-     ```
-  4. Prueba los endpoints protegidos.
 
 ---
 
@@ -97,6 +95,23 @@ _Visualización de la base de datos en la consola H2_
 
 ---
 
+## 🧪 Uso
+
+- **Login de ejemplo:**
+  - Email: `admin@cafe.com`
+  - Contraseña: `Admin123` (recuerda la mayúscula)
+
+- **Probar la API:**
+  1. Ve a Swagger UI.
+  2. Usa `/api/auth/login` para obtener tu token JWT.
+  3. Haz clic en "Authorize" e ingresa:
+     ```
+     Bearer <tu_token>
+     ```
+  4. Prueba los endpoints protegidos.
+
+---
+
 ## 🧰 Tecnologías
 
 - Java 17
@@ -110,14 +125,24 @@ _Visualización de la base de datos en la consola H2_
 
 ## 🤝 Contribución
 
-¿Quieres mejorar el proyecto?  
-¡Haz un fork, crea una rama y envía tu PR!
+¿Te gustaría mejorar el proyecto?  
+Haz un fork, crea una rama y envía tu PR. ¡Toda contribución es bienvenida!
 
 ---
 
 ## 📬 Contacto
 
-- Autor: [Oscar Lopez](https://github.com/OscarL0pez)
-- Profesor: [Angel David Macho]
+- **Autor:** Oscar Lopez ([GitHub](https://github.com/OscarL0pez))
+- **Profesor:** Angel David Macho
+- **Email:** oscar.lopez@students.gammatech.school
 
 ---
+
+## 🙏 Agradecimientos
+
+Gracias al profesor Angel David Macho por su guía y apoyo durante el desarrollo de este proyecto.  
+Este trabajo es parte de mi formación como desarrollador backend.
+
+---
+
+> _Proyecto entregado como parte de la asignatura de Desarrollo Backend. Todos los derechos reservados._
