@@ -1,8 +1,9 @@
 package com.cafeteria.cafedealtura.controller;
 
-import com.cafeteria.cafedealtura.dto.OrderDTO;
-import com.cafeteria.cafedealtura.dto.OrderResponseDTO;
-import com.cafeteria.cafedealtura.service.OrderService;
+import com.cafeteria.cafedealtura.domain.order.dto.request.CreateOrderRequestDTO;
+import com.cafeteria.cafedealtura.domain.order.dto.request.UpdateOrderRequestDTO;
+import com.cafeteria.cafedealtura.domain.order.dto.response.OrderResponseDTO;
+import com.cafeteria.cafedealtura.domain.order.service.OrderService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -50,26 +51,27 @@ public class OrderController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<OrderResponseDTO> create(@Valid @RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<OrderResponseDTO> create(@Valid @RequestBody CreateOrderRequestDTO orderDTO) {
         OrderResponseDTO saved = orderService.create(orderDTO);
         return ResponseEntity.ok(saved);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponseDTO> getById(@PathVariable Long id) {
-        OrderResponseDTO order = orderService.getById(id);
+        OrderResponseDTO order = orderService.findById(id);
         return ResponseEntity.ok(order);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<OrderResponseDTO>> getAll(@PageableDefault(size = 10) Pageable pageable) {
-        List<OrderResponseDTO> orders = orderService.getAll(pageable);
+        List<OrderResponseDTO> orders = orderService.findAll(pageable);
         return ResponseEntity.ok(orders);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrderResponseDTO> update(@PathVariable Long id, @Valid @RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<OrderResponseDTO> update(@PathVariable Long id,
+            @Valid @RequestBody UpdateOrderRequestDTO orderDTO) {
         OrderResponseDTO updated = orderService.update(id, orderDTO);
         return ResponseEntity.ok(updated);
     }

@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import com.cafeteria.cafedealtura.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.cafeteria.cafedealtura.service.CustomUserDetailsService;
+import com.cafeteria.cafedealtura.security.CustomUserDetailsService;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)

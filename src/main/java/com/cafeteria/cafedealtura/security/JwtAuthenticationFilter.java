@@ -1,6 +1,6 @@
 package com.cafeteria.cafedealtura.security;
 
-import com.cafeteria.cafedealtura.service.CustomUserDetailsService;
+import com.cafeteria.cafedealtura.security.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

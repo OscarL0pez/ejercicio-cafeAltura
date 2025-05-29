@@ -1,42 +1,59 @@
 package com.cafeteria.cafedealtura.controller;
 
-import com.cafeteria.cafedealtura.dto.UserRegisterDTO;
-import com.cafeteria.cafedealtura.dto.LoginRequestDTO;
-import com.cafeteria.cafedealtura.dto.UserResponseDTO;
-import com.cafeteria.cafedealtura.dto.AuthResponseDTO;
-import com.cafeteria.cafedealtura.service.UserService;
-import com.cafeteria.cafedealtura.service.AuthService;
-import jakarta.validation.Valid;
+import com.cafeteria.cafedealtura.domain.user.dto.profile.UserProfileDTO;
+import com.cafeteria.cafedealtura.domain.user.model.User;
+import com.cafeteria.cafedealtura.domain.user.service.AuthService;
+import com.cafeteria.cafedealtura.domain.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+/**
+ * Controlador para la gestión de usuarios.
+ */
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(origins = "*")
 public class UserController {
-    @Autowired
-    private UserService userService;
+
+    private final UserService userService;
+    private final AuthService authService;
 
     @Autowired
-    private AuthService authService;
-
-    @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRegisterDTO dto) {
-        UserResponseDTO user = userService.registerUser(dto);
-        return ResponseEntity.ok(user);
+    public UserController(UserService userService, AuthService authService) {
+        this.userService = userService;
+        this.authService = authService;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
-        AuthResponseDTO response = authService.login(dto);
-        return ResponseEntity.ok(response);
+    /**
+     * Obtiene el perfil del usuario actualmente autenticado.
+     * 
+     * @return Perfil del usuario
+     */
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileDTO> getCurrentUser() {
+        User user = authService.getCurrentUser();
+        return ResponseEntity.ok(new UserProfileDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRoles().stream()
+                        .map(role -> role.getName())
+                        .toList()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    /**
+     * Obtiene todos los usuarios del sistema.
+     * Requiere rol ADMIN.
+     * 
+     * @return Lista de perfiles de usuario
+     */
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserProfileDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 }
