@@ -140,7 +140,7 @@ Haz un fork, crea una rama y envía tu PR. ¡Toda contribución es bienvenida!
 
 ## 🙏 Agradecimientos
 
-Gracias al profesor Angel David Macho por su guía y apoyo durante el desarrollo de este proyecto.  
+Gracias a todas las personas inplicadas en este boot-camp Alex,Angel y Sonia;Al profesor Angel David Macho por su guía y apoyo durante el desarrollo de esta ultima parte del proyecto.  
 Este trabajo es parte de mi formación como desarrollador backend.
 
 ---
